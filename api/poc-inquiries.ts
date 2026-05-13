@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { z } from "zod";
-import { db } from "../db";
-import { pocInquiries, insertPocInquirySchema } from "../shared/schema";
+import { db } from "../db/index.js";
+import { pocInquiries, insertPocInquirySchema } from "../shared/schema.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === "POST") {
