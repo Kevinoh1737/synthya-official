@@ -11,7 +11,7 @@ import Pricing from "@/pages/Pricing";
 import Technology from "@/pages/Technology";
 import POC from "@/pages/POC";
 import Company from "@/pages/Company";
-import Experience from "@/pages/Experience";
+import Perspective from "@/pages/Perspective";
 
 function Router() {
   return (
@@ -19,12 +19,12 @@ function Router() {
       <ScrollToTop />
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/perspective" component={Perspective} />
         <Route path="/methodology" component={Methodology} />
         <Route path="/pricing" component={Pricing} />
         <Route path="/technology" component={Technology} />
         <Route path="/poc" component={POC} />
         <Route path="/company" component={Company} />
-        <Route path="/experience" component={Experience} />
         <Route component={NotFound} />
       </Switch>
     </>

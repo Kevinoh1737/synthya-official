@@ -316,13 +316,51 @@ export default function Home() {
                   </ul>
                 </div>
 
-                <a href="/experience" className="block pt-2">
-                  <Button className="w-full gap-2 rounded-xl h-14 text-base font-semibold shadow-lg shadow-primary/20" data-testid="button-track2-experience">
-                    지금 바로 체험하기 <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </a>
               </CardContent>
             </Card>
+          </div>
+        </Section>
+
+        {/* Perspective Teaser */}
+        <Section className="bg-white">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <span className="mb-4 inline-block text-primary font-semibold tracking-wider uppercase bg-primary/5 px-4 py-1 rounded-full text-sm">우리의 관점</span>
+              <h2 className="text-3xl font-bold text-primary md:text-4xl leading-tight">
+                AI 기능을 만드는 회사는 많습니다.<br/>
+                우리는 다른 곳을 보고 있습니다.
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-10">
+              <div className="bg-secondary/30 rounded-2xl p-8 border border-border/50 card-hover">
+                <p className="text-sm font-semibold text-primary/70 mb-3">01</p>
+                <h3 className="text-xl font-bold text-primary mb-3 leading-snug">
+                  외주가 아닌, 기술 파트너
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  AI 직원 한 명 도입으로 끝이 아닙니다. 그 이후의 개발 이슈와 확장까지 옆에서 함께 가는 파트너 — SI 외주 업체와는 다른 모델입니다.
+                </p>
+              </div>
+
+              <div className="bg-secondary/30 rounded-2xl p-8 border border-border/50 card-hover">
+                <p className="text-sm font-semibold text-primary/70 mb-3">02</p>
+                <h3 className="text-xl font-bold text-primary mb-3 leading-snug">
+                  AI 기능보다, 데이터 통합이 먼저
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  ERP·그룹웨어 등 여러 SaaS에 흩어진 데이터를 한곳으로 모으는 일. 경쟁사들이 말하지 않는, 우리가 가장 중요하게 보는 부분입니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <a href="/perspective" className="inline-block">
+                <Button variant="outline" className="gap-2 rounded-xl h-12 px-6 text-base font-semibold">
+                  자세히 보기 <ArrowRight className="w-4 h-4" />
+                </Button>
+              </a>
+            </div>
           </div>
         </Section>
 
