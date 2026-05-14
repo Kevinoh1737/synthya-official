@@ -10,9 +10,9 @@ export function Navbar() {
   const [location] = useLocation();
 
   const navLinks = [
+    { href: "/perspective", label: "우리의 관점" },
     { href: "/methodology", label: "도입 방법" },
     { href: "/technology", label: "기술/보유역량" },
-    { href: "/experience", label: "AI 직원 체험" },
     { href: "/pricing", label: "가격" },
     { href: "/poc", label: "적용 상담" },
     { href: "/company", label: "회사 소개" },

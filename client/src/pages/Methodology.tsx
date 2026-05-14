@@ -218,7 +218,7 @@ export default function Methodology() {
                   작은 업무 하나를 AI 직원에게 맡기고<br/>
                   며칠 안에 결과를 확인합니다.
                 </p>
-                <p>지금 바로 무료 체험이 가능한 방식입니다.</p>
+                <p>도입 결정 전 무료 체험이 가능한 방식입니다.</p>
               </div>
 
               <div className="mb-8">
@@ -274,16 +274,11 @@ export default function Methodology() {
                     <div className="bg-white p-2 rounded-full shadow-sm">
                       <Check className="h-4 w-4 text-accent" />
                     </div>
-                    <p className="font-medium text-primary">즉시 무료 체험 가능</p>
+                    <p className="font-medium text-primary">무료 체험 후 도입 결정</p>
                   </div>
                 </div>
               </div>
 
-              <a href="/experience" className="block">
-                <Button className="w-full gap-2 rounded-xl h-14 text-base font-semibold shadow-lg shadow-primary/20" data-testid="button-methodology-track2-experience">
-                  지금 바로 체험하기 <ArrowRight className="w-4 h-4" />
-                </Button>
-              </a>
             </div>
           </div>
         </Section>
