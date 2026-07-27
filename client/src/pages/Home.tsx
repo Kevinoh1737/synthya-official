@@ -160,6 +160,9 @@ export default function Home() {
   const [preview, setPreview] = useState<PreviewImage>(null);
   const [language, setLanguage] = useState<Language>(() => {
     if (typeof window === "undefined") return "ko";
+    if (window.location.pathname === "/en" || window.location.pathname.startsWith("/en/")) return "en";
+    if (window.location.pathname === "/ko" || window.location.pathname.startsWith("/ko/")) return "ko";
+
     const savedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
     if (savedLanguage === "ko" || savedLanguage === "en") return savedLanguage;
 
@@ -171,8 +174,9 @@ export default function Home() {
   const rules = rulesByLanguage[language];
 
   const handleLanguageChange = (nextLanguage: Language) => {
-    setLanguage(nextLanguage);
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
+    const nextPath = nextLanguage === "en" ? "/en/" : "/ko/";
+    window.location.assign(`${nextPath}${window.location.hash}`);
   };
 
   useEffect(() => {

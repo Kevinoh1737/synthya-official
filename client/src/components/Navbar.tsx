@@ -13,7 +13,11 @@ const navLinks = [
 
 function Brand({ language }: { language: Language }) {
   return (
-    <a href="#" className="block" aria-label={language === "en" ? "Synthya home" : "Synthya 홈"}>
+    <a
+      href={language === "en" ? "/en/" : "/ko/"}
+      className="block"
+      aria-label={language === "en" ? "Synthya home" : "Synthya 홈"}
+    >
       <img
         src={brandLockup}
         alt="Synthya"

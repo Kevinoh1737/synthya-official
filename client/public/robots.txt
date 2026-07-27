@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://synthya.ai/sitemap.xml
+Sitemap: https://www.synthya.ai/sitemap.xml

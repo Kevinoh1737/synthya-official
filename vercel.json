@@ -3,7 +3,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
   "framework": "vite",
+  "redirects": [
+    { "source": "/ko", "destination": "/ko/", "permanent": true },
+    { "source": "/en", "destination": "/en/", "permanent": true }
+  ],
   "rewrites": [
+    { "source": "/ko/", "destination": "/ko/index.html" },
+    { "source": "/en/", "destination": "/en/index.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

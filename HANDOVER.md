@@ -140,9 +140,14 @@ Synthya의 독특한 온보딩 방식:
 ## 8. 언어 및 타이포그래피
 
 - Pretendard로 통일했다.
+- 검색 가능한 언어별 URL:
+  - 한국어: `https://www.synthya.ai/ko/`
+  - 영어: `https://www.synthya.ai/en/`
+  - 자동 언어 선택: `https://www.synthya.ai/`
+- `/ko/`와 `/en/`는 각각 독립된 title, description, canonical, hreflang, Open Graph, 구조화 데이터와 JavaScript 실행 전 정적 핵심 본문을 제공한다.
 - 브라우저의 첫 번째 선호 언어가 `ko` 또는 `ko-KR`이면 한국어가 기본이다.
 - 그 외 언어는 영어가 기본이다.
-- 사용자가 KR/EN을 선택하면 localStorage에 저장된 선택이 우선한다.
+- 사용자가 KR/EN을 선택하면 해당 언어 URL로 이동하고 localStorage에 선택을 저장한다.
 - 한국어와 영어는 별도 줄바꿈 규칙을 사용한다.
 - 한글 단어 중간 줄바꿈을 금지한다.
 - 데스크톱의 의도된 강제 줄바꿈은 모바일에서 제거한다.
