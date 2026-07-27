@@ -186,7 +186,7 @@ Synthya의 독특한 온보딩 방식:
   - `brand/README.md`
 - 새 파비콘: `client/public/favicon.png`
   - 512×512
-  - 블루–퍼플 타일과 흰색 보강 심볼
+  - 투명 모서리의 네이비 입체 타일, 블루–퍼플 광원과 흰색 보강 심볼
 - Apple 터치 아이콘: `client/public/apple-touch-icon.png`
 - 소셜 공유 이미지: `client/public/opengraph-2026-v2.png`
 - 파비콘 크기별 검수: `captures/favicon-readability-preview.png`
