@@ -1,91 +1,118 @@
-import React from "react";
-import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import logoImage from "@/assets/images/synthya-logo.png";
+import { useState } from "react";
+import { ArrowUpRight, Menu, X } from "lucide-react";
+import brandLockup from "@/assets/images/synthya-brand-2026-horizontal.png";
+import type { Language } from "@/lib/language";
 
-export function Navbar() {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [location] = useLocation();
+const navLinks = [
+  { href: "#product", label: "Product" },
+  { href: "#technology", label: "Technology" },
+  { href: "#workflow", label: "Workflow" },
+  { href: "#vision", label: "Vision" },
+  { href: "#company", label: "Company" },
+];
 
-  const navLinks = [
-    { href: "/perspective", label: "우리의 관점" },
-    { href: "/methodology", label: "도입 방법" },
-    { href: "/technology", label: "기술/보유역량" },
-    { href: "/pricing", label: "가격" },
-    { href: "/poc", label: "적용 상담" },
-    { href: "/company", label: "회사 소개" },
-  ];
+function Brand({ language }: { language: Language }) {
+  return (
+    <a href="#" className="block" aria-label={language === "en" ? "Synthya home" : "Synthya 홈"}>
+      <img
+        src={brandLockup}
+        alt="Synthya"
+        className="h-auto w-[11.5rem] object-contain sm:w-[13rem]"
+      />
+    </a>
+  );
+}
+
+type NavbarProps = {
+  language?: Language;
+  onLanguageChange?: (language: Language) => void;
+};
+
+export function Navbar({ language = "ko", onLanguageChange = () => undefined }: NavbarProps) {
+  const [open, setOpen] = useState(false);
+  const demoLabel = language === "en" ? "Request a demo" : "데모 요청";
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-white/80 backdrop-blur-md">
-      <div className="container mx-auto flex h-16 items-center justify-between px-6 md:px-10">
-        <Link href="/" className="flex-shrink-0">
-          <img src={logoImage} alt="Synthya" className="h-10 w-auto cursor-pointer" />
-        </Link>
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-[#f8f9fb]/90 backdrop-blur-xl">
+      <nav className="site-shell flex h-[70px] items-center justify-between">
+        <Brand language={language} />
 
-        {/* Desktop Menu - Centered */}
-        <div className="hidden md:flex md:flex-1 md:items-center md:justify-center md:gap-2">
+        <div className="hidden items-center gap-7 lg:flex">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href}>
-              <span className={cn(
-                "text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap px-4 py-2 rounded-full",
-                location === link.href 
-                  ? "text-primary font-bold bg-primary/10" 
-                  : "text-muted-foreground hover:text-primary hover:bg-primary/5"
-              )}>
-                {link.label}
-              </span>
-            </Link>
+            <a key={link.href} href={link.href} className="text-sm font-medium text-slate-600 transition hover:text-blue-600">
+              {link.label}
+            </a>
           ))}
         </div>
 
-        {/* Action Button - Right Aligned */}
-        <div className="hidden md:flex md:flex-shrink-0">
-          <Link href="/poc#poc-form">
-            <Button variant="default" size="sm" className="rounded-full px-6 font-semibold shadow-none">
-              우리 업무에 적용 상담하기
-            </Button>
-          </Link>
+        <div className="hidden items-center gap-3 lg:flex">
+          <div className="language-switch" aria-label={language === "en" ? "Select language" : "언어 선택"}>
+            {(["ko", "en"] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={language === option ? "active" : ""}
+                onClick={() => onLanguageChange(option)}
+                aria-pressed={language === option}
+              >
+                {option === "ko" ? "KR" : "EN"}
+              </button>
+            ))}
+          </div>
+          <a href="#contact" className="flex items-center gap-2 rounded-full bg-[#0b1220] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-600">
+            {demoLabel} <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
         </div>
 
-        {/* Mobile Menu Toggle */}
         <button
-          className="flex h-10 w-10 items-center justify-center rounded-md md:hidden"
-          onClick={() => setIsOpen(!isOpen)}
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white lg:hidden"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-label={
+            language === "en"
+              ? open
+                ? "Close menu"
+                : "Open menu"
+              : open
+                ? "메뉴 닫기"
+                : "메뉴 열기"
+          }
         >
-          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
-      </div>
+      </nav>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="border-t border-border/40 bg-white px-6 py-4 md:hidden">
-          <div className="flex flex-col space-y-4">
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <span 
-                  className={cn(
-                    "text-sm font-medium cursor-pointer block px-4 py-2 rounded-lg transition-all duration-200",
-                    location === link.href 
-                      ? "text-primary font-bold bg-primary/10" 
-                      : "text-muted-foreground hover:text-primary hover:bg-primary/5"
-                  )}
-                  onClick={() => setIsOpen(false)}
+      {open && (
+        <div className="border-t border-slate-200 bg-white px-6 py-5 lg:hidden">
+          <div className="flex flex-col">
+            <div className="language-switch mb-3 self-start" aria-label={language === "en" ? "Select language" : "언어 선택"}>
+              {(["ko", "en"] as const).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={language === option ? "active" : ""}
+                  onClick={() => {
+                    onLanguageChange(option);
+                    setOpen(false);
+                  }}
+                  aria-pressed={language === option}
                 >
-                  {link.label}
-                </span>
-              </Link>
+                  {option === "ko" ? "KR" : "EN"}
+                </button>
+              ))}
+            </div>
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href} className="border-b border-slate-100 py-4 text-sm font-medium" onClick={() => setOpen(false)}>
+                {link.label}
+              </a>
             ))}
-            <Link href="/poc#poc-form">
-              <Button className="w-full rounded-full" onClick={() => setIsOpen(false)}>
-                우리 업무에 적용 상담하기
-              </Button>
-            </Link>
+            <a href="#contact" className="button-primary mt-5 justify-center" onClick={() => setOpen(false)}>
+              {demoLabel} <ArrowUpRight className="h-4 w-4" />
+            </a>
           </div>
         </div>
       )}
-    </nav>
+    </header>
   );
 }

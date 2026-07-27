@@ -1,0 +1,11 @@
+무제 폴더/
+*폴더/
+**/*.mov
+.claude/
+.omc/
+captures/
+brand/
+reference_*.md
+WEBSITE_RELAUNCH_PLAN.md
+logo.png
+symbol.png

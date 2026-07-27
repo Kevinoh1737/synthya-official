@@ -1,454 +1,929 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  ArrowRight,
+  Archive,
+  Box,
+  Braces,
+  BrainCircuit,
+  Building2,
+  Check,
+  ChevronRight,
+  CircleCheckBig,
+  Database,
+  Eye,
+  FileCode2,
+  Layers3,
+  Maximize2,
+  MoveUpRight,
+  Network,
+  NotebookTabs,
+  Ruler,
+  ScanSearch,
+  Scale,
+  ShieldCheck,
+  Sparkles,
+  Workflow,
+  X,
+} from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Section } from "@/components/Section";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Check, ArrowRight, X, Sparkles, Building2, User, FileText, Settings, BarChart, Eye } from "lucide-react";
-import { motion, Variants } from "framer-motion";
-import omniPreview from "@assets/Omni_AI_sample_1770359028257.png";
+import cadBefore from "@/assets/product/cad-before-real.png";
+import cadAfter from "@/assets/product/cad-after-real.png";
+import hitlConcept from "@/assets/product/hitl-concept-preview-v1.png";
+import fullLogo from "@/assets/images/synthya-brand-2026-horizontal.png";
+import globalEnpLogo from "@/assets/images/global-enp-logo.png";
+import { LANGUAGE_STORAGE_KEY, type Language } from "@/lib/language";
 
-// Animation variants
-const fadeIn: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.6, ease: "easeOut" } 
-  }
-};
+type PreviewImage = {
+  src: string;
+  alt: string;
+  label: string;
+} | null;
 
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2
-    }
-  }
-};
+const capabilitiesByLanguage = {
+  ko: [
+  {
+    index: "01",
+    title: "도면 이해",
+    description:
+      "전체 도면을 VLM으로 판독해 부속실이 있는 평면도를 찾고, 계산할 영역을 점선으로 구분합니다.",
+    icon: ScanSearch,
+    eyebrow: "도면을 이해합니다",
+    result: "8개 동 · 16개 제연구역",
+    tags: ["평면도", "부속실", "문·창문"],
+  },
+  {
+    index: "02",
+    title: "규칙 적용",
+    description:
+      "연결된 문과 창문을 CAD 줄자 도구로 직접 실측하고, 측정값을 부속실별 계산서에 입력합니다.",
+    icon: Ruler,
+    eyebrow: "설계 규칙을 적용합니다",
+    result: "수작업 실측·입력 자동화",
+    tags: ["CAD 실측", "계산 로직", "설계 제약"],
+  },
+  {
+    index: "03",
+    title: "CAD 생성",
+    description:
+      "팬룸과 DA를 찾아 팬·댐퍼 블록을 배치하고, 흡입측과 토출측 덕트를 최적 경로로 작도합니다.",
+    icon: Workflow,
+    eyebrow: "CAD를 직접 생성합니다",
+    result: "팬 · 댐퍼 · 덕트 레이어",
+    tags: ["팬·댐퍼 블록", "덕트 경로", "편집 레이어"],
+  },
+  ],
+  en: [
+    {
+      index: "01",
+      title: "Understand",
+      description:
+        "The agent uses visual reasoning to locate smoke-control vestibules across the full drawing set and delineates each calculation zone.",
+      icon: ScanSearch,
+      eyebrow: "READ DRAWINGS",
+      result: "8 buildings · 16 smoke-control zones",
+      tags: ["Floor plans", "Vestibules", "Doors & windows"],
+    },
+    {
+      index: "02",
+      title: "Engineer",
+      description:
+        "It measures connected doors and windows with native CAD tools, then transfers the geometry into the calculation workflow.",
+      icon: Ruler,
+      eyebrow: "APPLY RULES",
+      result: "Automated measurement and data entry",
+      tags: ["CAD measurement", "Calculations", "Constraints"],
+    },
+    {
+      index: "03",
+      title: "Draw",
+      description:
+        "It identifies fan rooms and dry areas, places approved fan and damper blocks, and routes intake and discharge ducts.",
+      icon: Workflow,
+      eyebrow: "GENERATE CAD",
+      result: "Editable fan · damper · duct layer",
+      tags: ["Fan & damper blocks", "Duct routes", "Editable layers"],
+    },
+  ],
+} as const;
+
+const rulesByLanguage = {
+  ko: ["구조벽 통과 금지", "가능한 최단 경로", "90° 굴곡 5개 미만", "계산값 기반 덕트 크기"],
+  en: ["No structural-wall penetration", "Shortest feasible route", "Fewer than five 90° bends", "Calculation-driven duct sizing"],
+} as const;
+
+function ProductWindow({
+  src,
+  alt,
+  label,
+  onOpen,
+  className = "",
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  label: string;
+  onOpen: () => void;
+  className?: string;
+  priority?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className={`product-window group text-left ${className}`}
+      aria-label={label}
+    >
+      <div className="product-window-bar">
+        <div className="flex items-center gap-1.5" aria-hidden="true">
+          <span className="window-dot bg-[#ff6b5f]" />
+          <span className="window-dot bg-[#f4bd4f]" />
+          <span className="window-dot bg-[#60c95d]" />
+        </div>
+        <span className="product-window-label">{label}</span>
+        <Maximize2 className="h-3.5 w-3.5 text-slate-400 transition-colors group-hover:text-blue-600" />
+      </div>
+      <div className="overflow-hidden bg-[#f6f4ed]">
+        <img
+          src={src}
+          alt={alt}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          className="block h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.012]"
+        />
+      </div>
+    </button>
+  );
+}
 
 export default function Home() {
-  const [omniImageOpen, setOmniImageOpen] = useState(false);
+  const [preview, setPreview] = useState<PreviewImage>(null);
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === "undefined") return "ko";
+    const savedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (savedLanguage === "ko" || savedLanguage === "en") return savedLanguage;
+
+    const primaryLocale = window.navigator.languages?.[0] || window.navigator.language;
+    return primaryLocale.toLowerCase().startsWith("ko") ? "ko" : "en";
+  });
+  const isEnglish = language === "en";
+  const capabilities = capabilitiesByLanguage[language];
+  const rules = rulesByLanguage[language];
+
+  const handleLanguageChange = (nextLanguage: Language) => {
+    setLanguage(nextLanguage);
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
+  };
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.title = language === "en"
+      ? "Synthya — Vibe CAD | AI-Powered CAD Design Automation"
+      : "Synthya — Vibe CAD | AI CAD 설계 자동화";
+  }, [language]);
+
+  useEffect(() => {
+    if (!preview) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPreview(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [preview]);
 
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground">
-      <Navbar />
+    <div className="min-h-screen overflow-hidden bg-[#f8f9fb] text-[#0b1220]">
+      <Navbar language={language} onLanguageChange={handleLanguageChange} />
 
       <main>
-        {/* Hero Section */}
-        <Section className="pt-32 pb-20 md:pt-48 md:pb-32 gradient-hero relative overflow-hidden hero-shadow-bottom z-10" divider={false}>
-          <div className="absolute inset-0 bg-dots opacity-50" />
-          <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={fadeIn}
-            className="flex flex-col items-center text-center relative z-10"
-          >
-            <Badge variant="outline" className="mb-6 rounded-full border-primary/20 bg-white/80 backdrop-blur-sm px-4 py-1.5 text-sm text-primary hover:bg-white shadow-sm">
-              New: AI Workforce Solution
-            </Badge>
-            <h1 className="mb-6 max-w-4xl text-5xl font-bold leading-tight tracking-tight text-primary md:text-7xl">
-              AI를 도입하지 마세요<br />
-              <span className="text-muted-foreground/80">AI 직원을 채용하세요</span>
-            </h1>
-            <p className="mb-10 max-w-2xl text-xl leading-relaxed text-muted-foreground">
-              우리 회사에 딱 맞는 시스템을 크게 만들 필요는 없습니다.<br className="hidden md:block" />
-              작게, 빠르게, 한 명부터 시작하면 충분합니다.
-            </p>
-            <div className="flex flex-col gap-4 items-center">
-                <Button size="lg" className="h-14 px-10 text-base glow-primary rounded-full transition-all duration-300 hover:-translate-y-0.5" asChild>
-                  <a href="/poc#poc-form">우리 업무에 적용 상담하기 <ArrowRight className="ml-2 h-4 w-4" /></a>
-                </Button>
-                <p className="text-muted-foreground/60 text-sm font-medium">
-                  * 도입 결정 전까지 비용이 전혀 발생하지 않습니다.
-                </p>
+        <section className="hero-grid relative overflow-hidden border-b border-slate-200/80">
+          <div className="hero-glow" />
+          <div className="site-shell relative z-10 pt-24 pb-16 md:pt-32 md:pb-24">
+            <div className="mx-auto max-w-5xl text-center">
+              <div className="eyebrow-pill mx-auto mb-7">
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-600 shadow-[0_0_0_4px_rgba(49,92,255,.12)]" />
+                VIBE CAD · AI DESIGN AGENT
               </div>
-          </motion.div>
-        </Section>
-
-        {/* Empathy Section */}
-        <Section className="bg-white relative z-20 section-after-hero">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-            className="max-w-3xl mx-auto"
-          >
-            <div className="text-center mb-12">
-              <motion.h2 variants={fadeIn} className="mb-6 text-3xl font-bold text-primary md:text-4xl">
-                혹시 이런 경험 있으신가요?
-              </motion.h2>
-              <motion.p variants={fadeIn} className="text-lg text-muted-foreground leading-relaxed">
-                많은 대표님들이 똑같은 이야기를 합니다.<br/>
-                그리고 대부분 아직도 시작을 못 하고 있습니다.
-              </motion.p>
+              <h1 className="display-title mx-auto max-w-5xl">
+                <span className="hero-title-line">{isEnglish ? "Read drawings." : "도면을 읽고,"}</span>
+                <span className="hero-title-line">{isEnglish ? "Apply engineering rules." : "규칙을 이해하고,"}</span>
+                <span className="hero-title-line text-blue-600">{isEnglish ? "Generate CAD." : "CAD를 직접 그립니다."}</span>
+              </h1>
+              <p className="mx-auto mt-7 max-w-2xl text-balance text-lg leading-8 text-slate-600 md:text-xl">
+                {isEnglish
+                  ? "VibeCAD is an AI design agent that turns engineering rules into editable CAD geometry—directly in the browser."
+                  : "VibeCAD는 엔지니어링 규칙을 편집 가능한 CAD 도면으로 바꾸는 AI 설계 에이전트입니다."}
+              </p>
+              <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <a href="#contact" className="button-primary">
+                  {isEnglish ? "Request a demo" : "데모 요청"} <ArrowRight className="h-4 w-4" />
+                </a>
+                <a href="#product" className="button-secondary">
+                  {isEnglish ? "View the product in action" : "실제 작동 화면"} <ChevronRight className="h-4 w-4" />
+                </a>
+              </div>
             </div>
-            
-            <div className="space-y-6">
-              {[
-                "ERP를 도입했는데… 직원들이 결국 엑셀 씁니다",
-                "SI 견적이 수억 원이라 포기했습니다",
-                "시스템은 복잡해졌는데 일은 더 늘었습니다",
-                "AI 좋다던데… 우리 회사는 어디서 시작하죠?"
-              ].map((item, index) => (
-                <motion.div 
-                  key={index}
-                  variants={fadeIn}
-                  className="flex items-start gap-4 p-5 bg-white rounded-xl border border-border/50 shadow-sm card-hover"
+
+            <div className="hero-motion relative mx-auto mt-12 max-w-[1360px] md:mt-14">
+              <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-blue-600/[0.06] blur-3xl" />
+              <div className="hero-motion-bar">
+                <div><span /><span /><span /></div>
+                <strong>LIVE PRODUCT · BROWSER-NATIVE CAD</strong>
+                <span className="hero-live"><i /> AGENT RUNNING</span>
+              </div>
+              <div className="hero-motion-media">
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster="/product/smoke-control-agent-poster.jpg"
+                  aria-label={isEnglish ? "Synthya agent generating a smoke-control system in CAD" : "Synthya 에이전트가 CAD에서 제연설비를 자동 작도하는 실제 화면"}
                 >
-                  <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <source src="/product/smoke-control-agent-live.mp4" type="video/mp4" />
+                </video>
+                <div className="hero-agent-card">
+                  <span>DESIGN AGENT</span>
+                  <strong>{isEnglish ? "Generating smoke-control system" : "제연설비 자동 작도 중"}</strong>
+                  <div><i /><small>{isEnglish ? "Engineering rules active" : "설계 규칙 적용 중"}</small></div>
+                </div>
+              </div>
+              <div className="hero-process">
+                {[
+                  { n: "01", ko: "도면 업로드", en: "Upload drawing" },
+                  { n: "02", ko: "설계 규칙 분석", en: "Interpret rules" },
+                  { n: "03", ko: "객체·경로 설계", en: "Engineer layout" },
+                  { n: "04", ko: "CAD 도면 생성", en: "Generate CAD" },
+                ].map((item, index) => (
+                  <div key={item.n} className={`hero-process-step step-${index + 1}`}>
+                    <span>{item.n}</span>
+                    <strong>{isEnglish ? item.en : item.ko}</strong>
+                    <Check />
                   </div>
-                  <span className="text-lg font-medium text-primary">{item}</span>
-                </motion.div>
-              ))}
+                ))}
+              </div>
             </div>
-          </motion.div>
-        </Section>
-
-        {/* Problem Definition */}
-        <Section className="bg-secondary/20">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-6 text-3xl font-bold md:text-4xl">예전 방식은 늘 같았습니다</h2>
-            <p className="mb-12 text-xl text-muted-foreground">
-              회사 시스템을 바꾼다고 하면 항상 이렇게 시작했죠.
-            </p>
-            
-            <div className="grid gap-8 md:grid-cols-3">
-              {[
-                { title: "크게 만들고", icon: Building2 },
-                { title: "오래 만들고", icon: Settings },
-                { title: "비싸게 만들고", icon: BarChart },
-              ].map((item, i) => (
-                <Card key={i} className="border-border/50 bg-white shadow-sm card-hover">
-                  <CardContent className="flex flex-col items-center py-10">
-                    <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-secondary to-secondary/50 shadow-sm">
-                      <item.icon className="h-8 w-8 text-primary/70" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-primary">{item.title}</h3>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            
-            <p className="mt-12 text-lg text-muted-foreground">
-              그리고… 막상 완성되면 아무도 안 씁니다.<br/>
-              AI까지 여기에 얹으면 견적은 더 올라갑니다.<br/>
-              <span className="font-semibold text-primary">솔직히 말하면, 대표님들 입장에선 또 다른 부담일 뿐이죠.</span>
-            </p>
           </div>
-        </Section>
+        </section>
 
-        {/* Core Proposal (Transition) */}
-        <Section className="bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-accent/30 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
-          </div>
-          <div className="max-w-4xl mx-auto relative z-10">
-            <div className="text-center mb-16">
-              <span className="mb-4 inline-block text-accent font-semibold tracking-wide uppercase bg-white/10 px-4 py-1 rounded-full text-sm">Our Perspective</span>
-              <h2 className="mb-6 text-4xl font-bold leading-tight md:text-5xl text-white">
-                AI는 거대한 시스템을<br/>만드는 기술이 아닙니다.
+        <section id="product" className="bg-white py-24 md:py-32">
+          <div className="site-shell">
+            <div className="section-heading">
+              <p className="section-kicker">FROM DRAWING TO DESIGN</p>
+              <h2>
+                {isEnglish ? "Understand. Engineer. Draw." : "도면을 이해하고, 규칙을 적용하고, CAD로 그립니다."}
+                <br className="desktop-break" />
+                {" "}
+                {isEnglish ? "One continuous engineering workflow." : "하나로 이어지는 엔지니어링 워크플로."}
               </h2>
-              <p className="text-xl text-primary-foreground/80 leading-relaxed">
-                오히려 반대입니다.<br/>
-                더 작게, 더 가볍게, 더 싸게 시작할 수 있게 해주는 기술입니다.<br/>
-                그래서 우리는 방식을 완전히 바꿨습니다.
+              <p>
+                {isEnglish
+                  ? "A three-stage workflow mirrors how engineers work—from drawing analysis and measurement to calculation and CAD production."
+                  : "사람이 수행하던 제연설계 방식을 3단계 모듈로 구현했습니다. 각 단계를 순서대로 실행하면 분석부터 계산, 작도까지 이어집니다."}
               </p>
             </div>
-            
-            <div className="rounded-2xl bg-white/5 p-8 md:p-12 backdrop-blur-sm border border-white/10 max-w-2xl mx-auto">
-              <h3 className="mb-6 text-3xl font-bold text-white text-center">
-                AI 전담 사원을<br/>한 명 먼저 채용하세요
-              </h3>
-              <ul className="space-y-4 text-lg text-white/90">
-                <li className="flex items-center gap-3">
-                  <Check className="h-5 w-5 text-accent" /> 새 시스템을 구축하지 않습니다.
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="h-5 w-5 text-accent" /> 회사를 뒤엎지 않습니다.
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="h-5 w-5 text-accent" /> 지금 방식 그대로 둡니다.
-                </li>
-                <li className="flex items-center gap-3">
-                  <Check className="h-5 w-5 text-accent" /> 그 위에 '일 잘하는 AI 직원'을 붙입니다.
-                </li>
-              </ul>
-            </div>
-          </div>
-        </Section>
 
-        {/* Tracks Section */}
-        <Section id="solution">
-          <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">AI를 도입하는 방법은 크게 두 가지입니다</h2>
-            <p className="text-xl text-muted-foreground">회사 전체를 연결하거나, 작은 업무 하나부터 시작하거나.</p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-2">
-            {/* Track 1 */}
-            <Card className="flex flex-col border-border/60 shadow-lg shadow-primary/5 card-hover">
-              <CardHeader>
-                <Badge className="w-fit mb-2 bg-secondary text-muted-foreground hover:bg-secondary/80">Track 1</Badge>
-                <CardTitle className="text-2xl">회사 전체를 하나의 AI로 만드는 방식</CardTitle>
-                <CardDescription className="text-base">Omni AI</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 space-y-6">
-                <p className="text-muted-foreground">
-                  ERP, NAS, 엑셀, 내부 문서를 모두 연결해<br/>
-                  AI가 회사 전체 데이터를 통합 분석합니다.
-                </p>
-                <p className="text-muted-foreground">
-                  부서별로 나뉘어 있던 정보를<br/>
-                  하나의 시스템에서 보고, 판단하고, 실행합니다.
-                </p>
-                <p className="text-muted-foreground">
-                  전사 단위 자동화를 구축하는 방식입니다.
-                </p>
-                
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-primary">이런 회사에 적합</h4>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> 부서가 많고 데이터가 흩어져 있는 경우</li>
-                    <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> ERP/문서/파일이 복잡하게 쌓여 있는 경우</li>
-                    <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> 회사 전체를 장기적으로 자동화하고 싶은 경우</li>
-                  </ul>
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-primary">핵심 특징</h4>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 데이터 자동 연동</li>
-                    <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 기존 시스템 그대로 사용</li>
-                    <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 전사 리포트/대시보드 제공</li>
-                    <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 실제 운영 화면 제공 (아래 예시 참고)</li>
-                  </ul>
-                </div>
-
-                <Button
-                  variant="outline"
-                  className="w-full gap-2 rounded-xl"
-                  onClick={() => setOmniImageOpen(true)}
-                  data-testid="button-omni-preview"
-                >
-                  <Eye className="w-4 h-4" /> 실제 화면 미리보기
-                </Button>
-              </CardContent>
-            </Card>
-
-            {omniImageOpen && (
-              <div
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm cursor-pointer animate-in fade-in duration-200"
-                onClick={() => setOmniImageOpen(false)}
-              >
-                <div className="relative max-w-5xl w-[90vw] animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    onClick={() => setOmniImageOpen(false)}
-                    className="absolute -top-10 right-0 text-white/80 hover:text-white text-sm font-medium flex items-center gap-1 transition-colors"
-                  >
-                    닫기 <X className="w-4 h-4" />
-                  </button>
-                  <img
-                    src={omniPreview}
-                    alt="Omni AI 실제 화면 미리보기"
-                    className="w-full rounded-xl shadow-2xl"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Track 2 */}
-            <Card className="relative flex flex-col border-primary border-2 shadow-xl shadow-primary/10 card-hover">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary/80 text-white px-5 py-1.5 rounded-full text-sm font-semibold shadow-lg flex items-center gap-1">
-                추천
-              </div>
-              <CardHeader>
-                <Badge className="w-fit mb-2 bg-accent/10 text-primary hover:bg-accent/20 border-none">Track 2</Badge>
-                <CardTitle className="text-2xl">AI 전담 사원 한 명부터 시작</CardTitle>
-                <CardDescription className="text-base">AI Staff</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 space-y-6">
-                <p className="text-muted-foreground">
-                  시스템을 바꾸지 않습니다.<br/>
-                  복잡한 구축도 필요 없습니다.
-                </p>
-                <p className="text-muted-foreground">
-                  작은 업무 하나를 AI 직원에게 맡기고<br/>
-                  며칠 안에 결과를 확인합니다.
-                </p>
-                <p className="text-muted-foreground">
-                  지금 바로 무료 체험이 가능한 방식입니다.
-                </p>
-
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-primary">이런 회사에 적합</h4>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> AI를 처음 도입해보는 경우</li>
-                    <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> 빠르게 효과를 확인하고 싶은 경우</li>
-                    <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> 특정 업무부터 자동화하고 싶은 경우</li>
-                  </ul>
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-primary">예시 업무</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {["견적서 자동 생성", "CS 답변 처리", "발주/정산 관리", "보고서 작성"].map((task) => (
-                      <div key={task} className="flex items-center gap-2 rounded-lg bg-secondary/50 p-3 text-sm font-medium">
-                        <User className="h-4 w-4 text-primary" /> {task}
+            <div className="capability-grid mt-14">
+              {capabilities.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <article key={item.index} className="group bg-white p-7 md:p-9">
+                    <div className="flex items-start justify-between">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-600">
+                        <Icon className="h-5 w-5" strokeWidth={1.8} />
                       </div>
-                    ))}
+                      <span className="font-mono text-xs text-slate-400">{item.index}</span>
+                    </div>
+                    <p className="mt-10 font-mono text-[10px] font-bold tracking-[0.18em] text-blue-600">
+                      {item.eyebrow}
+                    </p>
+                    <h3 className="mt-2 text-2xl font-semibold tracking-[-0.03em]">{item.title}</h3>
+                    <p className="mt-4 text-[15px] leading-7 text-slate-600">{item.description}</p>
+                    <div className="capability-tags">
+                      {item.tags.map((tag) => <span key={tag}>{tag}</span>)}
+                    </div>
+                    <div className="capability-result">
+                      <Check className="h-3.5 w-3.5" />
+                      {item.result}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <figure className="step-one-video mt-10">
+              <div className="step-one-copy">
+                <div>
+                  <p className="section-kicker">STEP 01 · LIVE PRODUCT FOOTAGE</p>
+                  <h3>{isEnglish ? "Identify smoke-control vestibules across the drawing set." : "도면 전체에서 제연 부속실을 식별합니다."}</h3>
+                </div>
+                <p>
+                  {isEnglish
+                    ? "The agent reviews the full drawing set, identifies every relevant floor plan, and marks each vestibule calculation zone with a dashed boundary."
+                    : "실행 버튼을 누르면 에이전트가 전체 도면을 판독하고, 부속실별 계산이 필요한 평면도 영역을 점선으로 표시합니다."}
+                </p>
+              </div>
+              <div className="step-one-media">
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster="/product/step-1-vestibule-detection-poster.jpg"
+                  aria-label={isEnglish ? "Live footage of the Step 1 agent detecting vestibules and marking smoke-control zones" : "Step 1 에이전트가 전체 도면에서 부속실을 찾고 제연구역을 점선으로 표시하는 실제 제품 화면"}
+                >
+                  <source src="/product/step-1-vestibule-detection-live.mp4" type="video/mp4" />
+                </video>
+                <div className="step-one-result">
+                  <span>VLM DRAWING ANALYSIS</span>
+                  <strong>{isEnglish ? "8 BUILDINGS · 16 ZONES DETECTED" : "8개 동 · 16개 제연구역 탐지"}</strong>
+                </div>
+              </div>
+            </figure>
+          </div>
+        </section>
+
+        <section className="knowledge-section border-t border-slate-100 py-24 md:py-32">
+          <div className="site-shell">
+            <div className="knowledge-declaration mx-auto max-w-5xl text-center">
+              <p className="section-kicker">SYNTHYA COMPANY INTELLIGENCE</p>
+              <h2 className="mt-5 font-semibold leading-[1.08] tracking-[-0.055em]">
+                {isEnglish ? "VibeCAD is the tool." : "VibeCAD는 도구입니다."}
+                <br className="desktop-break" />
+                {" "}
+                <span className="text-blue-600">
+                  {isEnglish ? "Accumulated design rules are the real asset." : "진짜 자산은 회사가 축적한 설계 규칙입니다."}
+                </span>
+              </h2>
+              <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-slate-600">
+                  {isEnglish
+                    ? "Synthya builds an intelligence layer from a company’s projects and engineering knowledge. Each design agent retrieves the relevant rules, precedents, and context before it acts."
+                  : "회사가 축적해 온 프로젝트와 설계 지식을 먼저 하나의 지능 계층으로 구축합니다. 설계 에이전트는 작업에 앞서 필요한 규칙과 선례, 프로젝트 맥락을 이곳에서 찾아 실행합니다."}
+              </p>
+            </div>
+
+            <div className="knowledge-map mt-14">
+              <div className="knowledge-source-panel">
+                <div className="knowledge-panel-heading">
+                  <span>01</span>
+                  <div>
+                    <p>{isEnglish ? "COMPANY KNOWLEDGE" : "회사의 설계 지식"}</p>
+                    <strong>{isEnglish ? "Everything the company knows" : "흩어진 지식을 한곳으로"}</strong>
                   </div>
                 </div>
-
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-primary">핵심 특징</h4>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 2주 안에 결과 확인</li>
-                    <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 개발비 0원</li>
-                    <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 데이터 마이그레이션 무료</li>
-                    <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 부담 없이 테스트 가능</li>
-                    <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-primary" /> 즉시 무료 체험 가능</li>
-                  </ul>
+                <div className="knowledge-source-grid">
+                  {[
+                    { icon: Archive, ko: "기존 프로젝트", en: "Past projects" },
+                    { icon: FileCode2, ko: "도면·계산서", en: "Drawings & calculations" },
+                    { icon: NotebookTabs, ko: "설계 기준·매뉴얼", en: "Standards & manuals" },
+                    { icon: Scale, ko: "법령·규정", en: "Codes & regulations" },
+                    { icon: Building2, ko: "현장 노하우", en: "Field expertise" },
+                    { icon: Database, ko: "암묵지·선례", en: "Tacit knowledge & precedents" },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div className="knowledge-source" key={item.en}>
+                        <Icon aria-hidden="true" />
+                        <span>{isEnglish ? item.en : item.ko}</span>
+                      </div>
+                    );
+                  })}
                 </div>
+              </div>
 
-              </CardContent>
-            </Card>
-          </div>
-        </Section>
+              <div className="knowledge-flow knowledge-flow-in" aria-hidden="true">
+                <span />
+                <ChevronRight />
+              </div>
 
-        {/* Perspective Teaser */}
-        <Section className="bg-white">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-12">
-              <span className="mb-4 inline-block text-primary font-semibold tracking-wider uppercase bg-primary/5 px-4 py-1 rounded-full text-sm">우리의 관점</span>
-              <h2 className="text-3xl font-bold text-primary md:text-4xl leading-tight">
-                AI 기능을 만드는 회사는 많습니다.<br/>
-                우리는 다른 곳을 보고 있습니다.
-              </h2>
+              <div className="omni-core">
+                <div className="omni-orbit omni-orbit-one" aria-hidden="true" />
+                <div className="omni-orbit omni-orbit-two" aria-hidden="true" />
+                <div className="omni-core-icon">
+                  <BrainCircuit aria-hidden="true" />
+                </div>
+                <p>OMNI INTELLIGENCE AGENT</p>
+                <h3>{isEnglish ? "Company Intelligence Layer" : "기업 설계 지능 계층"}</h3>
+                <div className="omni-functions">
+                  <span>{isEnglish ? "Understand" : "이해"}</span>
+                  <span>{isEnglish ? "Structure" : "구조화"}</span>
+                  <span>{isEnglish ? "Retrieve" : "검색"}</span>
+                  <span>{isEnglish ? "Ground" : "근거화"}</span>
+                </div>
+                <small>
+                  {isEnglish
+                    ? "Project-specific knowledge, delivered at the point of decision"
+                    : "판단이 필요한 순간, 프로젝트에 맞는 지식을 전달"}
+                </small>
+              </div>
+
+              <div className="knowledge-flow knowledge-flow-out" aria-hidden="true">
+                <span />
+                <ChevronRight />
+              </div>
+
+              <div className="knowledge-agent-panel">
+                <div className="knowledge-panel-heading">
+                  <span>02</span>
+                  <div>
+                    <p>{isEnglish ? "DOMAIN DESIGN AGENTS" : "도메인 설계 에이전트"}</p>
+                    <strong>{isEnglish ? "Knowledge becomes execution" : "지식이 설계 실행으로"}</strong>
+                  </div>
+                </div>
+                <div className="design-agent-stack">
+                  {[
+                    { index: "A", ko: "도면 판독", en: "Drawing analysis", metaKo: "VLM 기반 객체·영역 인식", metaEn: "VLM-based object recognition" },
+                    { index: "B", ko: "실측·계산", en: "Measure & calculate", metaKo: "CAD 도구와 계산 로직 실행", metaEn: "CAD tools and calculation logic" },
+                    { index: "C", ko: "규칙 기반 작도", en: "Rule-based drafting", metaKo: "검증 가능한 편집 레이어 생성", metaEn: "Verifiable, editable layer output" },
+                  ].map((item) => (
+                    <div className="design-agent" key={item.index}>
+                      <span>{item.index}</span>
+                      <div>
+                        <strong>{isEnglish ? item.en : item.ko}</strong>
+                        <p>{isEnglish ? item.metaEn : item.metaKo}</p>
+                      </div>
+                      <CircleCheckBig aria-hidden="true" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="knowledge-loop" aria-hidden="true">
+                <span className="knowledge-loop-line" />
+                <span className="knowledge-loop-label">
+                  <Network />
+                  {isEnglish ? "VALIDATED OUTCOMES STRENGTHEN COMPANY KNOWLEDGE" : "검증된 결과가 다시 회사의 지식으로 축적"}
+                </span>
+              </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 mb-10">
-              <div className="bg-secondary/30 rounded-2xl p-8 border border-border/50 card-hover">
-                <p className="text-sm font-semibold text-primary/70 mb-3">01</p>
-                <h3 className="text-xl font-bold text-primary mb-3 leading-snug">
-                  외주가 아닌, 기술 파트너
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  AI 직원 한 명 도입으로 끝이 아닙니다. 그 이후의 개발 이슈와 확장까지 옆에서 함께 가는 파트너 — SI 외주 업체와는 다른 모델입니다.
+            <div className="knowledge-contrast">
+              <div>
+                <span>{isEnglish ? "CONVENTIONAL VIBE CAD" : "일반적인 Vibe CAD"}</span>
+                <p>{isEnglish ? "Prompt" : "프롬프트"} <ArrowRight /> {isEnglish ? "CAD command" : "CAD 명령"}</p>
+              </div>
+              <div className="knowledge-contrast-divider" />
+              <div className="active">
+                <span>SYNTHYA</span>
+                <p>
+                  {isEnglish ? "Company knowledge" : "회사 지식"} <ArrowRight />
+                  {isEnglish ? "Engineering judgment" : "설계 판단"} <ArrowRight />
+                  {isEnglish ? "CAD execution" : "CAD 실행"}
                 </p>
               </div>
-
-              <div className="bg-secondary/30 rounded-2xl p-8 border border-border/50 card-hover">
-                <p className="text-sm font-semibold text-primary/70 mb-3">02</p>
-                <h3 className="text-xl font-bold text-primary mb-3 leading-snug">
-                  AI 기능보다, 데이터 통합이 먼저
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  ERP·그룹웨어 등 여러 SaaS에 흩어진 데이터를 한곳으로 모으는 일. 경쟁사들이 말하지 않는, 우리가 가장 중요하게 보는 부분입니다.
-                </p>
-              </div>
-            </div>
-
-            <div className="text-center">
-              <a href="/perspective" className="inline-block">
-                <Button variant="outline" className="gap-2 rounded-xl h-12 px-6 text-base font-semibold">
-                  자세히 보기 <ArrowRight className="w-4 h-4" />
-                </Button>
-              </a>
             </div>
           </div>
-        </Section>
+        </section>
 
-        {/* Pricing Comparison */}
-        <Section id="pricing" className="bg-gradient-to-b from-secondary/30 to-background">
-          <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">직원 한 명 채용한다고 생각해보세요</h2>
-            <p className="text-xl text-muted-foreground">솔직히 말하면, 가장 가성비 좋은 직원입니다.</p>
-          </div>
-
-          <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-border bg-white shadow-lg shadow-primary/5">
-            <div className="grid grid-cols-3 border-b border-border bg-muted/30 text-center font-medium">
-              <div className="p-6 text-muted-foreground">구분</div>
-              <div className="p-6 text-muted-foreground">사람 직원</div>
-              <div className="p-6 bg-primary/5 font-bold text-primary">AI 전담 사원</div>
-            </div>
-            
-            {[
-              { label: "비용", human: "연봉 3,000만원+", ai: "월 구독료만 (저렴)" },
-              { label: "근무 시간", human: "주 40시간", ai: "24시간 / 365일" },
-              { label: "복지/부대비용", human: "4대보험, 퇴직금, 식대", ai: "0원" },
-              { label: "교육 기간", human: "1~3개월", ai: "즉시 투입" },
-              { label: "퇴직 리스크", human: "언제든 가능", ai: "절대 없음" },
-              { label: "초기 개발비", human: "-", ai: "0원 (무료 셋팅)" },
-            ].map((row, i) => (
-              <div key={i} className="grid grid-cols-3 border-b border-border last:border-0 text-center text-sm md:text-base hover:bg-muted/10 transition-colors">
-                <div className="p-5 font-medium text-muted-foreground">{row.label}</div>
-                <div className="p-5 text-muted-foreground">{row.human}</div>
-                <div className="p-5 bg-primary/5 font-bold text-primary">{row.ai}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 text-center">
-             <div className="inline-flex flex-col items-center justify-center rounded-2xl border border-primary/10 bg-white p-8 shadow-xl shadow-primary/5 relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary" />
-                <h3 className="mb-2 text-2xl font-bold text-primary">부담 없이 시작하세요</h3>
-                <div className="flex flex-wrap justify-center gap-6 py-6 text-muted-foreground">
-                  <span className="flex items-center gap-2"><Check className="text-green-500 h-5 w-5" /> 장기 계약 없음</span>
-                  <span className="flex items-center gap-2"><Check className="text-green-500 h-5 w-5" /> 무료 체험 제공</span>
-                  <span className="flex items-center gap-2"><Check className="text-green-500 h-5 w-5" /> 효과 없으면 0원</span>
-                </div>
-             </div>
-          </div>
-        </Section>
-
-        {/* CTA Section */}
-        <Section className="text-center relative overflow-hidden py-32 md:py-48">
-          <div className="absolute inset-0 bg-primary z-0" />
-          <div className="absolute inset-0 bg-dots opacity-10 z-0" />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/80 z-0" />
-          
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent z-0" />
-          
-          <div className="mx-auto max-w-4xl relative z-10 px-6">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeIn}
-            >
-              <Badge variant="outline" className="mb-8 rounded-full border-white/20 bg-white/10 text-white px-4 py-1 text-sm backdrop-blur-sm">
-                Next Step
-              </Badge>
-              <h2 className="mb-8 text-4xl font-bold md:text-6xl text-white leading-tight">
-                말로 설명하는 것보다<br/>
-                <span className="text-accent">직접 써보는 게 빠릅니다</span>
+        <section id="technology" className="precision-grid border-y border-slate-200 py-24 md:py-32">
+          <div className="site-shell grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+            <div>
+              <p className="section-kicker">DETERMINISTIC BY DESIGN</p>
+              <h2 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.12] tracking-[-0.045em] md:text-5xl">
+                {isEnglish ? "Built for precision." : "추측하지 않습니다."}
+                <br className="desktop-break" />
+                {" "}
+                <span className="text-blue-600">{isEnglish ? "Engineered to execute." : "실행합니다."}</span>
               </h2>
-              <p className="mb-12 text-xl md:text-2xl text-white/80 leading-relaxed max-w-2xl mx-auto">
-                상담 → 2주 테스트 → 효과 확인 → 그때 결정<br/>
-                <span className="text-white font-semibold">초기 비용 0원으로 지금 바로 시작해보세요.</span>
+              <p className="mt-7 max-w-lg text-lg leading-8 text-slate-600">
+                {isEnglish
+                  ? "Language models determine intent and plan the work. Synthya’s proprietary CAD engine performs the measurement, calculation, and geometric execution."
+                  : "언어 모델은 무엇을 해야 하는지 판단합니다. 측정·계산·작도는 신티아가 직접 만든 CAD 엔진이 수행합니다."}
               </p>
-              <div className="flex flex-col gap-4 justify-center items-center">
-                <Button size="lg" className="h-16 rounded-full px-12 text-xl font-bold bg-white text-primary hover:bg-white/90 shadow-2xl shadow-black/20 transition-all duration-300 hover:-translate-y-1" asChild>
-                  <a href="/poc#poc-form">우리 업무에 적용 상담하기</a>
-                </Button>
-                <div className="text-white/60 text-sm font-medium">
-                  * 도입 결정 전까지 비용이 전혀 발생하지 않습니다.
+              <div className="mt-10 space-y-5">
+                {(isEnglish
+                  ? [
+                      ["Proprietary CAD engine", "Processes large, editable drawings directly in the browser"],
+                      ["Native DWG and DXF parsing", "A core stack independent of third-party CAD licensing"],
+                      ["Deterministic execution", "Identical inputs and rules produce consistent geometry"],
+                    ]
+                  : [
+                      ["자체 CAD 엔진", "브라우저 안에서 대용량 도면을 직접 처리"],
+                      ["자체 DWG·DXF 파서", "외부 CAD 라이선스에 종속되지 않는 기반 기술"],
+                      ["결정론적 실행", "같은 입력과 규칙에는 같은 기하 결과"],
+                    ]
+                ).map(([title, body]) => (
+                  <div key={title} className="flex gap-4">
+                    <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
+                      <Check className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">{title}</h3>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">{body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="architecture-card">
+              <div className="mb-8 flex items-center justify-between">
+                <div>
+                  <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-blue-600">SYSTEM ARCHITECTURE</p>
+                  <h3 className="mt-2 text-xl font-semibold">
+                    {isEnglish ? "Intelligence separated from precision" : "판단과 정밀 실행의 분리"}
+                  </h3>
+                </div>
+                <ShieldCheck className="h-6 w-6 text-blue-600" />
+              </div>
+              <div className="space-y-3">
+                {(isEnglish
+                  ? [
+                      { icon: Eye, title: "LLM + VLM", body: "Intent · visual interpretation · rule reasoning", tone: "soft" },
+                      { icon: Braces, title: "Agent harness", body: "Tool selection · planning · review controls", tone: "mid" },
+                      { icon: Box, title: "CAD engine", body: "Parsing · measurement · calculation · geometry", tone: "strong" },
+                    ]
+                  : [
+                      { icon: Eye, title: "LLM + VLM", body: "의도 이해 · 시각 판독 · 규칙 판단", tone: "soft" },
+                      { icon: Braces, title: "Agent harness", body: "도구 선택 · 작업 계획 · 검토 요청", tone: "mid" },
+                      { icon: Box, title: "CAD engine", body: "파싱 · 실측 · 계산 · 레이어 작도", tone: "strong" },
+                    ]
+                ).map((item, index) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.title}>
+                      <div className={`architecture-layer ${item.tone}`}>
+                        <Icon className="h-5 w-5" />
+                        <div className="flex-1">
+                          <p className="font-semibold">{item.title}</p>
+                          <p className="mt-0.5 text-xs opacity-70">{item.body}</p>
+                        </div>
+                        <span className="font-mono text-[10px] opacity-50">0{index + 1}</span>
+                      </div>
+                      {index < 2 && <div className="mx-auto h-3 w-px bg-blue-200" />}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="workflow" className="bg-[#07101f] py-24 text-white md:py-32">
+          <div className="site-shell">
+            <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+              <div>
+                <p className="section-kicker text-blue-400">REAL WORK, NOT A MOCKUP</p>
+                <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">
+                  {isEnglish ? "Where engineering rules become geometry." : "규칙이 선이 되는 순간."}
+                </h2>
+              </div>
+              <p className="navy-intro-copy max-w-2xl text-lg leading-8 text-slate-300 lg:justify-self-end">
+                {isEnglish
+                  ? "Live footage of the agent moving across 16 smoke-control zones in eight buildings, placing fan and damper blocks, and generating compliant ductwork on a new editable layer."
+                  : "8개 동, 16개 제연구역을 이동하며 팬·댐퍼 블록을 배치하고, 계산 결과와 설계 제약에 맞는 덕트를 새 레이어에 생성하는 실제 화면입니다."}
+              </p>
+            </div>
+
+            <figure className="live-video-frame mt-14">
+              <div className="live-video-bar">
+                <div className="flex items-center gap-2">
+                  <span className="live-indicator" aria-hidden="true" />
+                  <span>LIVE PRODUCT FOOTAGE</span>
+                </div>
+                <span className="hidden text-slate-500 sm:inline">SMOKE CONTROL AGENT · STEP 3</span>
+              </div>
+              <video
+                className="live-product-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                poster="/product/smoke-control-agent-poster.jpg"
+                aria-label={isEnglish ? "Live footage of the smoke-control agent generating fans, dampers, and ducts across 16 zones" : "제연설계 에이전트가 16개 제연구역에 팬, 댐퍼, 덕트를 자동으로 작도하는 실제 제품 녹화"}
+              >
+                <source src="/product/smoke-control-agent-live.mp4" type="video/mp4" />
+              </video>
+              <figcaption className="live-video-caption">
+                <span>{isEnglish ? "LIVE PRODUCT" : "실제 제품 화면"}</span>
+                <p>
+                  {isEnglish
+                    ? "The agent identifies fan rooms and dry areas, then routes intake and discharge ducts along optimized paths."
+                    : "팬룸과 DA를 판독하고, 흡입·토출 덕트를 최적 경로로 순차 작도합니다."}
+                </p>
+                <strong>8 BUILDINGS · 16 ZONES</strong>
+              </figcaption>
+            </figure>
+
+            <div className="result-zoom-grid mt-6">
+              <button
+                type="button"
+                className="result-zoom-card before"
+                onClick={() => setPreview({ src: cadBefore, alt: isEnglish ? "Source CAD drawing" : "자동 작도 전 CAD 도면", label: "Before" })}
+              >
+                <div className="result-zoom-image"><img src={cadBefore} alt="" /></div>
+                <span className="result-state-badge">BEFORE</span>
+                <div className="result-zoom-copy">
+                  <span>BEFORE · SOURCE DRAWING</span>
+                  <strong>{isEnglish ? "An unworked floor plan" : "설비가 없는 원본 평면도"}</strong>
+                  <p>{isEnglish ? "No equipment, routes, or generated layers" : "팬·댐퍼·덕트 및 생성 레이어 없음"}</p>
+                </div>
+              </button>
+              <button
+                type="button"
+                className="result-zoom-card after"
+                onClick={() => setPreview({ src: cadAfter, alt: isEnglish ? "AI-generated CAD layout" : "AI 자동 작도 결과", label: "After" })}
+              >
+                <div className="result-zoom-image"><img src={cadAfter} alt="" /></div>
+                <span className="result-state-badge after">AFTER</span>
+                <div className="result-zoom-copy">
+                  <span>AFTER · AI-GENERATED LAYER</span>
+                  <strong>{isEnglish ? "A complete, editable system layout" : "편집 가능한 제연설비 자동 작도"}</strong>
+                  <div className="result-metrics">
+                    <p><b>16</b>{isEnglish ? "zones" : "제연구역"}</p>
+                    <p><b>3</b>{isEnglish ? "component types" : "설비 유형"}</p>
+                    <p><b>1</b>{isEnglish ? "editable layer" : "편집 레이어"}</p>
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            <div className="rules-grid mt-10">
+              {rules.map((rule, index) => (
+                <div key={rule} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5">
+                  <span className="font-mono text-[10px] text-blue-400">0{index + 1}</span>
+                  <span className="text-sm text-slate-300">{rule}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="partner-section bg-white py-20 md:py-24">
+          <div className="site-shell">
+            <div className="partner-intro">
+              <p className="section-kicker">BUILT WITH INDUSTRY EXPERTS</p>
+              <p>
+                {isEnglish
+                  ? "Developed in collaboration with a smoke-control engineering specialist."
+                  : "제연설비 전문기업의 실무 지식과 함께 개발하고 있습니다."}
+              </p>
+            </div>
+            <div className="partner-card partner-card-compact">
+              <div className="partner-logo-panel">
+                <p>INDUSTRY DESIGN PARTNER</p>
+                <a
+                  href="https://www.globalenp.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={isEnglish ? "Open Global ENP website in a new tab" : "글로벌이앤피 공식 홈페이지 새 창에서 열기"}
+                >
+                  <img src={globalEnpLogo} alt="Global ENP" loading="lazy" />
+                </a>
+                <span>SMOKE CONTROL SPECIALIST</span>
+              </div>
+              <div className="partner-story">
+                <div className="partner-status"><span aria-hidden="true" /> PILOT VALIDATION</div>
+                <h2>{isEnglish ? "Validated with real engineering practice." : "실제 설계 방식으로 검증합니다."}</h2>
+                <p>
+                  {isEnglish
+                    ? "Global ENP’s field practices and engineering rules inform the smoke-control agent. The system is currently undergoing final validation on production drawings ahead of operational deployment."
+                    : "글로벌이앤피의 실제 작업 방식과 현장 규칙을 제연설계 에이전트에 반영하고 있으며, 현재 실무 적용 전 실제 도면을 기반으로 최종 검증하고 있습니다."}
+                </p>
+                <div className="partner-evidence">
+                  {(isEnglish
+                    ? ["Developed with Global ENP", "Real project drawings", "Field workflow encoded"]
+                    : ["글로벌이앤피와 공동 검증", "실제 프로젝트 도면 기반", "현업 설계 방식 반영"]
+                  ).map((item) => (
+                    <span key={item}><Check className="h-3.5 w-3.5" />{item}</span>
+                  ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
-          
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-0" />
-        </Section>
+        </section>
+
+        <section className="bg-white py-24 md:py-32">
+          <div className="site-shell">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="section-kicker">EXPERT IN CONTROL</p>
+              <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">
+                {isEnglish ? "When an engineer moves a component," : "설계자가 위치를 바꾸면,"}
+                <br className="desktop-break" />
+                {" "}
+                {isEnglish ? "the agent redraws within the rules." : "에이전트가 규칙에 맞춰 다시 그립니다."}
+              </h2>
+              <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+                {isEnglish
+                  ? "A human-in-the-loop workflow is in development: move a fan or reshape a duct, and the agent recalculates the connected route while preserving the governing design constraints."
+                  : "팬이나 덕트 위치를 직접 조정하면 기존 규칙을 유지한 채 연결 경로를 다시 계산하는 Human-in-the-loop 기능을 개발하고 있습니다."}
+              </p>
+            </div>
+            <div className="relative mx-auto mt-14 max-w-6xl">
+              <div className="concept-badge">
+                <Sparkles className="h-3.5 w-3.5" />
+                IN DEVELOPMENT · CONCEPT PREVIEW
+              </div>
+              <ProductWindow
+                src={hitlConcept}
+                alt={isEnglish ? "Concept preview of the human-in-the-loop CAD workflow in development" : "개발 중인 Human-in-the-loop CAD 기능 콘셉트 화면"}
+                label="HUMAN-IN-THE-LOOP · CONCEPT"
+                className="hitl-desktop-view"
+                onOpen={() =>
+                  setPreview({
+                    src: hitlConcept,
+                    alt: isEnglish ? "Human-in-the-loop concept in development" : "Human-in-the-loop 개발 콘셉트",
+                    label: isEnglish ? "In development · Concept preview" : "개발 중 · 콘셉트 프리뷰",
+                  })
+                }
+              />
+              <div className="hitl-mobile-story" aria-label={isEnglish ? "Human-in-the-loop concept workflow" : "Human-in-the-loop 콘셉트 워크플로"}>
+                <div className="hitl-mobile-frame drawing">
+                  <img src={hitlConcept} alt="" />
+                  <span>BEFORE</span>
+                  <strong>{isEnglish ? "The engineer moves the fan" : "설계자가 팬 위치를 변경"}</strong>
+                </div>
+                <div className="hitl-mobile-frame constraints">
+                  <img src={hitlConcept} alt="" />
+                  <span>AFTER</span>
+                  <strong>{isEnglish ? "The agent reroutes within constraints" : "에이전트가 규칙 안에서 재작도"}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="vision" className="vision-section border-y border-slate-200 py-24 md:py-32">
+          <div className="site-shell">
+            <div className="section-heading">
+              <p className="section-kicker">THE PATH TO VIBE CAD</p>
+              <h2>
+                {isEnglish ? "Starting with the most demanding rules." : "가장 어려운 설계부터,"}
+                <br className="desktop-break" />
+                {" "}
+                {isEnglish ? "Expanding to every design domain." : "모든 엔지니어링 분야로 확장합니다."}
+              </h2>
+              <p>
+                {isEnglish
+                  ? "Korean fire-protection engineering is not the destination. It is the rigorous proving ground for a general-purpose design execution engine."
+                  : "한국 소방은 목적지가 아니라 범용 설계 엔진을 단련하는 가장 정교한 출발점입니다."}
+              </p>
+            </div>
+            <div className="relative mt-16 grid gap-4 lg:grid-cols-3">
+              {(isEnglish
+                ? [
+                    {
+                      state: "AVAILABLE NOW",
+                      title: "Smoke Control Agent",
+                      body: "Core technology validated across drawing analysis, CAD measurement, calculation, and rule-based drafting",
+                      icon: Layers3,
+                      active: true,
+                    },
+                    {
+                      state: "IN DEVELOPMENT",
+                      title: "Fire Protection Agent",
+                      body: "An execution engine designed to handle regulations, multiple systems, and field exceptions",
+                      icon: FileCode2,
+                      active: false,
+                    },
+                    {
+                      state: "OUR DIRECTION",
+                      title: "VibeCAD Platform",
+                      body: "A general design environment where users can encode their own rules and automate domain-specific workflows",
+                      icon: Sparkles,
+                      active: false,
+                    },
+                  ]
+                : [
+                    {
+                      state: "AVAILABLE NOW",
+                      title: "제연설계 에이전트",
+                      body: "도면 분석·실측·규칙 작도의 코어 기술 검증",
+                      icon: Layers3,
+                      active: true,
+                    },
+                    {
+                      state: "IN DEVELOPMENT",
+                      title: "소방설계 에이전트",
+                      body: "외부 법규, 이종 설비, 현장 예외를 다루는 실행 엔진",
+                      icon: FileCode2,
+                      active: false,
+                    },
+                    {
+                      state: "OUR DIRECTION",
+                      title: "VibeCAD 플랫폼",
+                      body: "사용자가 자기 규칙을 넣어 어느 도메인에서나 설계",
+                      icon: Sparkles,
+                      active: false,
+                    },
+                  ]
+              ).map((item, index) => {
+                const Icon = item.icon;
+                return (
+                  <article key={item.title} className={`vision-card ${item.active ? "active" : ""}`}>
+                    <div className="flex items-center justify-between">
+                      <Icon className="h-6 w-6" />
+                      <span className="font-mono text-xs opacity-40">0{index + 1}</span>
+                    </div>
+                    <p className="mt-12 font-mono text-[10px] font-bold tracking-[0.16em] opacity-60">{item.state}</p>
+                    <h3 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{item.title}</h3>
+                    <p className="mt-4 text-sm leading-7 opacity-70">{item.body}</p>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section id="company" className="bg-white py-24 md:py-32">
+          <div className="site-shell grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:items-center">
+            <div>
+              <img
+                src={fullLogo}
+                alt="Synthya"
+                loading="lazy"
+                className="-mb-8 -mt-12 w-full max-w-[28rem] mix-blend-multiply"
+              />
+              <p className="section-kicker">BUILT FOR PROFESSIONAL WORK</p>
+              <h2 className="mt-4 max-w-2xl text-4xl font-semibold leading-[1.12] tracking-[-0.045em] md:text-5xl">
+                {isEnglish ? "Turning complex workflows" : "복잡한 전문 업무를"}
+                <br className="desktop-break" />
+                {" "}
+                {isEnglish ? "into executable AI systems." : "실행 가능한 AI로."}
+              </h2>
+              <p className="mt-7 max-w-xl text-lg leading-8 text-slate-600">
+                {isEnglish
+                  ? "Drawing on experience in model training and on-premise GPU operations, Synthya places engineering accuracy in a purpose-built execution engine—not in probabilistic model output alone."
+                  : "신티아는 모델을 직접 훈련하고 온프레미스 GPU를 운영해온 경험을 바탕으로, 설계의 정확성을 모델의 추측이 아닌 실행 엔진에 설계했습니다."}
+              </p>
+            </div>
+            <div className="grid gap-3">
+              {(isEnglish ? [
+                ["2020", "Founded in South Korea"],
+                ["4 months", "From domain study to working agent"],
+                ["700MB+", "Large drawing file validated"],
+              ] : [
+                ["2020", "대한민국에서 설립"],
+                ["4개월", "도메인 연구에서 작동 에이전트까지"],
+                ["700MB+", "대형 도면 파일 처리 검증"],
+              ]).map(([value, label]) => (
+                <div key={label} className="metric-row">
+                  <strong>{value}</strong>
+                  <span>{label}</span>
+                  <MoveUpRight className="h-4 w-4 text-blue-600" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="bg-blue-600 py-20 text-white md:py-24">
+          <div className="site-shell flex flex-col items-start justify-between gap-9 md:flex-row md:items-center">
+            <div>
+              <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-blue-100">START WITH ONE DRAWING</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-5xl">
+                {isEnglish ? "Show us the drawing your team repeats the most." : "가장 반복적인 도면부터 보여주세요."}
+              </h2>
+              <p className="mt-4 text-blue-100">
+                {isEnglish
+                  ? "We will assess where automation can create measurable value within your current engineering workflow."
+                  : "현재 작업 방식에 맞는 자동화 가능성을 함께 검토합니다."}
+              </p>
+            </div>
+            <a
+              href={`mailto:business@synthya.ai?subject=${isEnglish ? "Vibe%20CAD%20Demo%20Request" : "Vibe%20CAD%20데모%20요청"}`}
+              className="button-white shrink-0"
+            >
+              {isEnglish ? "Request a demo" : "데모 요청하기"} <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+        </section>
       </main>
 
-      <Footer />
+      <Footer language={language} />
+
+      {preview && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/90 p-3 backdrop-blur-sm md:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label={isEnglish ? `Enlarged view: ${preview.label}` : `${preview.label} 이미지 크게 보기`}
+          onClick={() => setPreview(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setPreview(null)}
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 md:right-8 md:top-8"
+            aria-label={isEnglish ? "Close" : "닫기"}
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <div className="max-h-[90vh] max-w-[96vw]" onClick={(event) => event.stopPropagation()}>
+            <div className="mb-3 flex items-center justify-between text-white">
+              <span className="font-mono text-xs tracking-wide">{preview.label}</span>
+              <span className="text-xs text-white/50">
+                {isEnglish ? "Press ESC or click outside to close" : "ESC 또는 바깥 영역을 눌러 닫기"}
+              </span>
+            </div>
+            <img src={preview.src} alt={preview.alt} className="max-h-[84vh] max-w-full rounded-xl object-contain shadow-2xl" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

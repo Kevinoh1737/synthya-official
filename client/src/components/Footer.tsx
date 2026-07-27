@@ -1,76 +1,47 @@
-import { Link } from "wouter";
-import { Mail } from "lucide-react";
+import { ArrowUpRight, Mail } from "lucide-react";
+import footerLogo from "@/assets/images/synthya-brand-2026-horizontal-reversed.png";
+import type { Language } from "@/lib/language";
 
-export function Footer() {
-  const serviceLinks = [
-    { href: "/perspective", label: "우리의 관점" },
-    { href: "/methodology", label: "도입 방법" },
-    { href: "/technology", label: "기술/보유역량" },
-    { href: "/pricing", label: "가격" },
-  ];
-
-  const companyLinks = [
-    { href: "/company", label: "회사 소개" },
-    { href: "/poc", label: "적용 상담" },
-  ];
+export function Footer({ language = "ko" }: { language?: Language }) {
+  const isEnglish = language === "en";
 
   return (
-    <footer className="border-t border-border/40 bg-white">
-      <div className="container mx-auto px-6 md:px-10">
-        <div className="py-12 grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-8 md:gap-16">
-          <div className="flex flex-col gap-4 text-center md:text-left items-center md:items-start">
-            <Link href="/">
-              <div className="flex items-center gap-2 cursor-pointer">
-                <span className="flex gap-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-pink-400"></span>
-                </span>
-                <span className="font-bold text-primary tracking-tight">SYNTHYA</span>
-              </div>
-            </Link>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-              혁신적인 AI 기술로 기업에 최적화된 인재를 연결하는<br/>
-              AI 직원 채용 솔루션, 신시아입니다.
+    <footer className="site-footer bg-[#07101f] text-white">
+      <div className="site-shell py-12 md:py-16">
+        <div className="flex flex-col justify-between gap-10 border-b border-white/10 pb-12 md:flex-row">
+          <div>
+            <img
+              src={footerLogo}
+              alt="Synthya"
+              className="footer-brand-lockup"
+            />
+            <p className="footer-description mt-5 max-w-md text-slate-300">
+              {isEnglish
+                ? "An AI design agent that understands engineering rules and operates CAD directly—starting with smoke-control and fire-protection design."
+                : "규칙을 이해하고 CAD를 직접 조작하는 AI 설계 에이전트. 제연·소방 설계부터 Vibe CAD로."}
             </p>
-            <a 
-              href="mailto:business@synthya.ai" 
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mt-2"
-            >
-              <Mail className="h-4 w-4" />
-              business@synthya.ai
-            </a>
           </div>
-          
-          <div className="grid grid-cols-2 md:contents gap-8">
+          <div className="footer-links grid grid-cols-2 gap-14">
             <div className="flex flex-col gap-3">
-              <h4 className="text-xs font-semibold text-muted-foreground tracking-wider uppercase mb-1">Service</h4>
-              {serviceLinks.map((link) => (
-                <Link key={link.href} href={link.href}>
-                  <span className="text-sm text-foreground hover:text-primary transition-colors cursor-pointer">
-                    {link.label}
-                  </span>
-                </Link>
-              ))}
+              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-slate-500">EXPLORE</p>
+              <a href="#product" className="text-slate-300 hover:text-white">Product</a>
+              <a href="#technology" className="text-slate-300 hover:text-white">Technology</a>
+              <a href="#vision" className="text-slate-300 hover:text-white">Vision</a>
             </div>
-
             <div className="flex flex-col gap-3">
-              <h4 className="text-xs font-semibold text-muted-foreground tracking-wider uppercase mb-1">Company</h4>
-              {companyLinks.map((link) => (
-                <Link key={link.href} href={link.href}>
-                  <span className="text-sm text-foreground hover:text-primary transition-colors cursor-pointer">
-                    {link.label}
-                  </span>
-                </Link>
-              ))}
+              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-slate-500">CONTACT</p>
+              <a href="mailto:business@synthya.ai" className="flex items-center gap-2 text-slate-300 hover:text-white">
+                <Mail className="h-3.5 w-3.5" /> Email
+              </a>
+              <a href="#contact" className="flex items-center gap-2 text-slate-300 hover:text-white">
+                {isEnglish ? "Request a demo" : "데모 요청"} <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
             </div>
           </div>
         </div>
-        
-        <div className="border-t border-border/40 py-6">
-          <p className="text-xs text-muted-foreground text-center md:text-left">
-            © 2026 Synthya Inc. All rights reserved.
-          </p>
+        <div className="footer-legal flex flex-col gap-3 pt-6 text-slate-400 md:flex-row md:items-center md:justify-between">
+          <p>© 2026 Synthya Inc. All rights reserved.</p>
+          <p>{isEnglish ? "Synthya Inc. · South Korea" : "주식회사 신티아 · 대한민국"}</p>
         </div>
       </div>
     </footer>
