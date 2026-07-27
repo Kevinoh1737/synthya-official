@@ -179,17 +179,11 @@ Synthya의 독특한 온보딩 방식:
   - `client/src/assets/images/synthya-brand-2026-symbol.png`
 - 추출 및 사용 규칙:
   - `brand/README.md`
-- 원본 루트 로고: `logo.png`
-- 원본 루트 심볼: `symbol.png`
-- 헤더 투명 락업: `client/src/assets/images/synthya-header-lockup-transparent.png`
-- 푸터 실제 락업:
-  - `client/src/assets/images/synthya-footer-lockup-white.png`
-  - 원본 투명도와 픽셀 위치를 유지하고 네이비 워드마크·태그라인만 흰색으로 변환
-- 헤더 심볼: `client/src/assets/images/synthya-symbol-2026.png`
 - 새 파비콘: `client/public/favicon.png`
   - 512×512
-  - 네이비 라운드 타일, 굵기 보강, 얕은 입체감
+  - 블루–퍼플 타일과 흰색 보강 심볼
 - Apple 터치 아이콘: `client/public/apple-touch-icon.png`
+- 소셜 공유 이미지: `client/public/opengraph-2026-v2.png`
 - 파비콘 크기별 검수: `captures/favicon-readability-preview.png`
 - Global ENP 로고: `client/src/assets/images/global-enp-logo.png`
 

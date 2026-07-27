@@ -83,7 +83,7 @@
 - [ ] `robots.txt`와 `sitemap.xml` 필요 여부 결정 및 공개 접근 확인
 - [ ] 기존 Google/Naver 검색 인증 값이 유지되는지 확인
 
-주의: 현재 `client/public/opengraph.jpg`는 기존 tracked 파일이다. 라이브 배포 전 최신 사이트와 시각·메시지가 일치하는지 반드시 사람이 직접 확인한다.
+현재 소셜 공유 이미지는 `client/public/opengraph-2026-v2.png`만 사용한다. 구형 OG 파일을 다시 추가하지 않는다.
 
 ### Gate E — 성능 및 접근성 검수
 
