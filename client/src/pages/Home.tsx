@@ -837,7 +837,7 @@ export default function Home() {
                 src={fullLogo}
                 alt="Synthya"
                 loading="lazy"
-                className="-mb-8 -mt-12 w-full max-w-[28rem] mix-blend-multiply"
+                className="mb-8 w-full max-w-[28rem] mix-blend-multiply"
               />
               <p className="section-kicker">BUILT FOR PROFESSIONAL WORK</p>
               <h2 className="mt-4 max-w-2xl text-4xl font-semibold leading-[1.12] tracking-[-0.045em] md:text-5xl">
