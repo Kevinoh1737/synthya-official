@@ -1,7 +1,7 @@
 # Synthya Website Relaunch — Handover
 
 마지막 업데이트: 2026-07-27
-상태: 로컬 개편 및 별도 Vercel 리뷰 진행 중, 실제 라이브 미반영
+상태: 신규 VibeCAD 사이트 production 배포 완료
 
 ## 1. 새 Codex 세션이 가장 먼저 알아야 할 내용
 
@@ -20,9 +20,13 @@
 - 로컬 경로: `/Users/kevinoh/synthya-website`
 - Git 브랜치: `local/vibecad-relaunch`
 - Git 원격: `origin = https://github.com/Kevinoh1737/synthya-official.git`
-- 현재 release candidate: `Relaunch Synthya as an AI CAD design agent`
+- production release: `f173e11 Relaunch Synthya as an AI CAD design agent`
 - 기존 라이브 기준: `7ef62b9 Replace Replit OG/Twitter image with Synthya's own`
-- 개편 작업은 로컬 release commit으로 고정했으며 아직 GitHub에는 push하지 않았다.
+- GitHub `main`과 Vercel production에 배포 완료했다.
+- Production project:
+  - Name: `synthya-official`
+  - Project ID: `prj_DDmmSXaTq9KtUvVEYro7OS2nRf0A`
+  - Deployment: `dpl_3PYgez4L3fpbP93JyFvJGhSe3UWQ`
 - 기존 라이브 사이트와 신규 개편 코드가 같은 저장소에 있으므로 push에 특히 주의한다.
 - 로컬 Vercel 연결:
   - Project: `synthya-vibecad-preview`
@@ -308,21 +312,23 @@ vercel --prod --yes
 7. 데모 요청 이메일 링크
 8. Global ENP 링크
 9. 파비콘 및 푸터 로고
-10. 실제 `synthya.ai`로 이전할 방법과 배포 승인
+10. 실제 `synthya.ai` 라이브 smoke test
 
-현재 release candidate:
+현재 production release:
 
-- Commit: 현재 `local/vibecad-relaunch`의 HEAD
+- Commit: `f173e11`
 - Review URL: `https://synthya-vibecad-preview.vercel.app`
 - TypeScript 검사 및 production build 통과
 - 새 Open Graph 이미지, `robots.txt`, `sitemap.xml` 공개 확인
-- GitHub 및 실제 `synthya.ai`에는 미반영
+- GitHub `main` 및 실제 `synthya.ai` 반영 완료
+- Vercel production deployment `READY`
+- 모바일 한국어·영어 전환, 영상 로딩, 신규 로고, 가로 넘침 및 콘솔 오류 검수 완료
 
-사용자가 최종 라이브 배포 승인을 내린 뒤에만:
+다음 변경을 production에 배포할 때:
 
-- GitHub push가 실제 라이브를 배포하는지 다시 확인한다.
-- 현재 `local/vibecad-relaunch`의 release commit을 승인된 방식으로 `main`에 push한다.
-- Google Cloud 자동 배포와 실제 사이트 smoke test를 진행한다.
+- 사용자의 명시적 최종 승인을 받는다.
+- 승인된 release commit만 GitHub `main`에 push한다.
+- Vercel `synthya-official` 자동 배포와 실제 사이트 smoke test를 진행한다.
 
 ## 16. Codex 데스크톱에서 시작하는 방법
 

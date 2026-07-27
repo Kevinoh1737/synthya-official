@@ -2,7 +2,7 @@
 
 마지막 업데이트: 2026-07-27
 대상: `https://synthya.ai`
-현재 상태: release candidate 준비 완료 — GitHub push 및 실제 라이브 미반영
+현재 상태: production 배포 완료 — 다음 release에도 동일 절차 적용
 
 ## 1. 이번 배포의 승인 상태
 
@@ -19,7 +19,7 @@
 1. 리뷰 사이트에서 최종 검수를 끝내기 전에는 GitHub에 push하지 않는다.
 2. `npm run check`와 `npm run build`가 모두 성공해야 한다.
 3. GitHub에 포함될 파일을 명시적으로 선별한다.
-4. Google Cloud의 GitHub 배포 트리거와 대상 브랜치를 콘솔에서 확인한다.
+4. Vercel `synthya-official`의 GitHub 배포 연결과 대상 브랜치를 확인한다.
 5. 사용자의 최종 배포 승인을 받은 뒤에만 release commit과 push를 실행한다.
 6. 배포 직후 핵심 화면과 링크를 확인한다.
 7. 중대한 문제가 있으면 수정 배포를 기다리지 않고 이전 버전으로 롤백한다.
@@ -135,22 +135,26 @@
 
 `git add .`는 사용하지 않는다. 파일을 명시적으로 선택해 stage하고, `git diff --cached`로 최종 확인한다.
 
-## 5. Google Cloud 배포 연결 확인
+## 5. Vercel production 배포 연결
 
-현재 로컬 저장소 안에는 Google Cloud 배포 트리거를 설명하는 설정 파일이 없다. 따라서 다음 항목은 Google Cloud Console에서 확인해야 한다.
+확인된 production 환경:
 
-- [ ] 실제 `synthya.ai`를 제공하는 Google Cloud 프로젝트 이름
-- [ ] Cloud Build 또는 배포 서비스의 trigger 이름
-- [ ] 연결된 GitHub 저장소가 `Kevinoh1737/synthya-official`
-- [ ] 자동 배포 대상 브랜치가 `main`인지
-- [ ] build 명령과 publish/output directory
+- Project: `synthya-official`
+- Project ID: `prj_DDmmSXaTq9KtUvVEYro7OS2nRf0A`
+- GitHub repository: `Kevinoh1737/synthya-official`
+- Production branch: `main`
+- Domain: `https://synthya.ai` → `https://www.synthya.ai`
+- GitHub `main` push 시 Vercel production 자동 배포
+
+배포 전 확인:
+
+- [ ] 현재 Vercel project와 GitHub repository 연결
+- [ ] production branch가 `main`
+- [ ] build 명령과 output directory
 - [ ] Node.js 버전
 - [ ] 필요한 환경 변수 또는 Secret
-- [ ] 배포 성공 시 연결되는 서비스
-- [ ] 실패 시 이전 revision으로 즉시 트래픽을 되돌리는 방법
-- [ ] `synthya.ai`와 `www.synthya.ai`의 도메인 연결 및 HTTPS 상태
-
-이 확인이 끝나기 전에는 GitHub에 어떤 브랜치도 push하지 않는다.
+- [ ] 직전 정상 deployment가 rollback candidate인지
+- [ ] `synthya.ai`와 `www.synthya.ai`의 HTTPS 및 redirect 상태
 
 ## 6. Release candidate 생성
 
@@ -189,12 +193,12 @@ commit만으로는 실제 사이트에 영향을 주지 않는다. GitHub push�
 
 사용자가 명시적으로 `synthya.ai에 배포해`라고 최종 승인한 뒤에만 실행한다.
 
-1. Google Cloud trigger와 `main` 연결을 마지막으로 재확인한다.
+1. Vercel `synthya-official`과 GitHub `main` 연결을 마지막으로 재확인한다.
 2. release commit hash와 현재 라이브 기준 commit `7ef62b9`를 기록한다.
 3. working tree에 미반영 변경이 없는지 확인한다.
 4. `npm run check`와 `npm run build`를 마지막으로 실행한다.
 5. 승인된 release commit을 GitHub의 배포 대상 브랜치에 push한다.
-6. Google Cloud build 및 deployment 상태를 확인한다.
+6. Vercel build 및 production deployment 상태를 확인한다.
 7. 배포 완료 후 `https://synthya.ai`를 새 브라우저 세션에서 확인한다.
 8. CDN 또는 브라우저 캐시의 이전 파일이 남아 있지 않은지 확인한다.
 9. 아래 smoke test를 수행한다.
@@ -230,7 +234,7 @@ commit만으로는 실제 사이트에 영향을 주지 않는다. GitHub push�
 
 권장 롤백:
 
-1. Google Cloud가 revision 기반 트래픽 전환을 지원하면 직전 정상 revision으로 즉시 되돌린다.
+1. Vercel에서 직전 정상 production deployment로 rollback한다.
 2. GitHub 기반 복구가 필요하면 release commit을 `git revert`한 새 복구 commit을 push한다.
 3. `git reset --hard` 또는 원격 이력 강제 변경은 사용하지 않는다.
 4. 롤백 후 `synthya.ai` smoke test를 다시 실행한다.
@@ -257,7 +261,7 @@ commit만으로는 실제 사이트에 영향을 주지 않는다. GitHub push�
 
 - 최종 카피와 브랜드 표현
 - Global ENP 공개 승인 범위에 변동이 없는지
-- Google Cloud Console의 실제 trigger 정보 또는 접근 승인
+- Vercel production 프로젝트의 실제 연결 정보 또는 접근 승인
 - release candidate 최종 승인
 - `synthya.ai` 라이브 배포 최종 승인
 
@@ -271,12 +275,14 @@ commit만으로는 실제 사이트에 영향을 주지 않는다. GitHub push�
 - Vercel 로컬 연결: `synthya-vibecad-preview`
 - GitHub 원격: `https://github.com/Kevinoh1737/synthya-official.git`
 - 현재 브랜치: `local/vibecad-relaunch`
-- release candidate commit: 현재 `local/vibecad-relaunch`의 HEAD
-- 개편 작업: 로컬 commit 완료, GitHub 미반영
-- 실제 `synthya.ai`: 변경 없음
+- production release: `f173e11 Relaunch Synthya as an AI CAD design agent`
+- GitHub `main`: 반영 완료
+- 실제 `synthya.ai`: 반영 및 smoke test 완료
 
 현재 남은 주요 Gate:
 
-1. Google Cloud trigger 및 롤백 방식 최종 확인
-2. 사용자 release candidate 승인
-3. 사용자 라이브 배포 최종 승인
+다음 release의 주요 Gate:
+
+1. 변경사항에 대한 새 release candidate 검수
+2. 사용자 라이브 배포 최종 승인
+3. Vercel production 배포 및 smoke test

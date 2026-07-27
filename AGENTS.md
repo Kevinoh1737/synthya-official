@@ -7,12 +7,16 @@
 
 - 현재 실제 서비스 `https://synthya.ai`는 라이브 상태다.
 - GitHub 원격 저장소는 `https://github.com/Kevinoh1737/synthya-official.git`이다.
-- GitHub에 push하면 Google Cloud를 통해 실제 사이트가 자동 배포될 가능성이 있다.
+- GitHub `main`에 push하면 Vercel의 `synthya-official` production 프로젝트가 자동 배포된다.
 - **사용자가 명시적으로 최종 승인을 내리기 전에는 절대로 GitHub에 push하지 않는다.**
 - 사용자가 요청하지 않은 commit, merge, PR 생성, 브랜치 전환도 하지 않는다.
 - 리뷰 배포는 로컬에 연결된 별도 Vercel 프로젝트 `synthya-vibecad-preview`만 사용한다.
 - 리뷰용 고정 URL은 `https://synthya-vibecad-preview.vercel.app`이다.
 - 이 Vercel 프로젝트에서 `vercel --prod`는 실제 `synthya.ai`가 아니라 리뷰 프로젝트의 고정 URL을 갱신한다.
+- 실제 production 프로젝트:
+  - Project: `synthya-official`
+  - Project ID: `prj_DDmmSXaTq9KtUvVEYro7OS2nRf0A`
+  - Domain: `https://synthya.ai` → `https://www.synthya.ai`
 - 배포 전에는 반드시 `npm run check`와 `npm run build`를 통과시킨다.
 
 ## 2. 현재 작업 기준
