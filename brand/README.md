@@ -1,18 +1,25 @@
 # Synthya 2026 Brand Assets
 
-## Source
+## Current source
 
-- Master supplied asset: `synthya-brand-guide-2026.png`
+- Approved horizontal logo: `synthya-logo-current.png`
+- Approved standalone symbol: `synthya-symbol-current.png`
+- Both files preserve the transparent pixels supplied by the user on 2026-08-05.
+- The horizontal lockup includes the approved Korean descriptor: `AI가 직접 그리는 CAD`.
+
+## Previous source
+
+- Previous master supplied asset: `synthya-brand-guide-2026.png`
 - Resolution: 1536 × 1024
 - Color space: RGB
-- The supplied source is raster and does not contain transparency.
+- The previous supplied source is raster and does not contain transparency.
 - No vector master was available at the time of the website release.
 
 ## Web derivatives
 
-- Light-background horizontal lockup:
+- Current light-background horizontal lockup:
   - `client/src/assets/images/synthya-brand-2026-horizontal.png`
-- Dark-background horizontal lockup:
+- Current dark-background placement uses the exact horizontal lockup on a light panel:
   - `client/src/assets/images/synthya-brand-2026-horizontal-reversed.png`
 - Standalone symbol:
   - `client/src/assets/images/synthya-brand-2026-symbol.png`
@@ -24,8 +31,8 @@
 ## Derivation policy
 
 - Derivatives preserve the pixels and proportions of the approved source.
-- The white source background was converted to transparency with a deterministic luminance mask.
-- The reversed lockup preserves the gradient symbol and recolors only the divider and wordmark to white.
+- The current files already include transparency and are copied without redrawing or generative reconstruction.
+- On dark backgrounds, preserve the dimensional symbol and render the wordmark and descriptor in white from the same approved source mask.
 - Do not redraw the symbol, substitute the wordmark with a font, or use generative image tools to recreate it.
 - Do not enlarge these raster assets for large-format print.
 

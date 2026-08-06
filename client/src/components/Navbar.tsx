@@ -1,15 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import brandLockup from "@/assets/images/synthya-brand-2026-horizontal.png";
 import type { Language } from "@/lib/language";
 
-const navLinks = [
-  { href: "#product", label: "Product" },
-  { href: "#technology", label: "Technology" },
-  { href: "#workflow", label: "Workflow" },
-  { href: "#vision", label: "Vision" },
-  { href: "#company", label: "Company" },
-];
+const navLinksByLanguage = {
+  ko: [
+    { href: "#product", label: "Product" },
+    { href: "#intelligence", label: "Implementation" },
+    { href: "/ko/company", label: "Company" },
+  ],
+  en: [
+    { href: "#product", label: "Product" },
+    { href: "#intelligence", label: "Implementation" },
+    { href: "/en/company", label: "Company" },
+  ],
+} satisfies Record<Language, Array<{ href: string; label: string }>>;
 
 function Brand({ language }: { language: Language }) {
   return (
@@ -34,7 +39,46 @@ type NavbarProps = {
 
 export function Navbar({ language = "ko", onLanguageChange = () => undefined }: NavbarProps) {
   const [open, setOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
   const demoLabel = language === "en" ? "Request a demo" : "데모 요청";
+  const navLinks = navLinksByLanguage[language];
+  const isCompanyPage = window.location.pathname.includes("/company");
+  const homePath = language === "en" ? "/en/" : "/ko/";
+
+  useEffect(() => {
+    let frame = 0;
+
+    const updateActiveSection = () => {
+      frame = 0;
+      const readingLine = 150;
+      let current = "";
+
+      for (const link of navLinks) {
+        if (!link.href.startsWith("#")) continue;
+        const section = document.querySelector<HTMLElement>(link.href);
+        if (section && section.getBoundingClientRect().top <= readingLine) {
+          current = link.href;
+        }
+      }
+
+      setActiveSection((previous) => previous === current ? previous : current);
+    };
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(updateActiveSection);
+    };
+
+    updateActiveSection();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+
+    return () => {
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [navLinks]);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-[#f8f9fb]/90 backdrop-blur-xl">
@@ -43,7 +87,12 @@ export function Navbar({ language = "ko", onLanguageChange = () => undefined }: 
 
         <div className="hidden items-center gap-7 lg:flex">
           {navLinks.map((link) => (
-            <a key={link.href} href={link.href} className="text-sm font-medium text-slate-600 transition hover:text-blue-600">
+            <a
+              key={link.href}
+              href={link.href.startsWith("#") && isCompanyPage ? `${homePath}${link.href}` : link.href}
+              className={`desktop-nav-link ${(isCompanyPage && link.label === "Company") || activeSection === link.href ? "active" : ""}`}
+              aria-current={(isCompanyPage && link.label === "Company") || activeSection === link.href ? "location" : undefined}
+            >
               {link.label}
             </a>
           ))}
@@ -107,7 +156,7 @@ export function Navbar({ language = "ko", onLanguageChange = () => undefined }: 
               ))}
             </div>
             {navLinks.map((link) => (
-              <a key={link.href} href={link.href} className="border-b border-slate-100 py-4 text-sm font-medium" onClick={() => setOpen(false)}>
+              <a key={link.href} href={link.href.startsWith("#") && isCompanyPage ? `${homePath}${link.href}` : link.href} className="border-b border-slate-100 py-4 text-sm font-medium" onClick={() => setOpen(false)}>
                 {link.label}
               </a>
             ))}

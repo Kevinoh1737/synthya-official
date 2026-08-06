@@ -1,25 +1,27 @@
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
-  Archive,
   Box,
   Braces,
   BrainCircuit,
   Building2,
+  Calculator,
   Check,
   ChevronRight,
-  CircleCheckBig,
+  Download,
   Database,
   Eye,
+  Factory,
   FileCode2,
+  Hand,
   Layers3,
+  LockKeyhole,
+  MessageSquare,
   Maximize2,
-  MoveUpRight,
   Network,
-  NotebookTabs,
   Ruler,
+  RefreshCw,
   ScanSearch,
-  Scale,
   ShieldCheck,
   Sparkles,
   Workflow,
@@ -30,7 +32,6 @@ import { Footer } from "@/components/Footer";
 import cadBefore from "@/assets/product/cad-before-real.png";
 import cadAfter from "@/assets/product/cad-after-real.png";
 import hitlConcept from "@/assets/product/hitl-concept-preview-v1.png";
-import fullLogo from "@/assets/images/synthya-brand-2026-horizontal.png";
 import globalEnpLogo from "@/assets/images/global-enp-logo.png";
 import { LANGUAGE_STORAGE_KEY, type Language } from "@/lib/language";
 
@@ -44,31 +45,31 @@ const capabilitiesByLanguage = {
   ko: [
   {
     index: "01",
-    title: "도면 이해",
+    title: "계산 대상 구역 식별",
     description:
-      "전체 도면을 VLM으로 판독해 부속실이 있는 평면도를 찾고, 계산할 영역을 점선으로 구분합니다.",
+      "전체 도면에서 부속실이 있는 평면도를 찾고, 각 계산 영역을 점선으로 구분.",
     icon: ScanSearch,
-    eyebrow: "도면을 이해합니다",
+    eyebrow: "도면 판독",
     result: "8개 동 · 16개 제연구역",
     tags: ["평면도", "부속실", "문·창문"],
   },
   {
     index: "02",
-    title: "규칙 적용",
+    title: "CAD 도구 기반 실측",
     description:
-      "연결된 문과 창문을 CAD 줄자 도구로 직접 실측하고, 측정값을 부속실별 계산서에 입력합니다.",
+      "연결된 문과 창문을 CAD 줄자로 측정하고, 부속실별 계산에 필요한 값으로 연결.",
     icon: Ruler,
-    eyebrow: "설계 규칙을 적용합니다",
+    eyebrow: "실측·계산",
     result: "수작업 실측·입력 자동화",
     tags: ["CAD 실측", "계산 로직", "설계 제약"],
   },
   {
     index: "03",
-    title: "CAD 생성",
+    title: "팬·댐퍼·덕트 작도",
     description:
-      "팬룸과 DA를 찾아 팬·댐퍼 블록을 배치하고, 흡입측과 토출측 덕트를 최적 경로로 작도합니다.",
+      "팬룸과 DA를 판독한 뒤 승인된 블록을 배치하고, 설계 제약 안에서 덕트 경로를 생성.",
     icon: Workflow,
-    eyebrow: "CAD를 직접 생성합니다",
+    eyebrow: "규칙 기반 작도",
     result: "팬 · 댐퍼 · 덕트 레이어",
     tags: ["팬·댐퍼 블록", "덕트 경로", "편집 레이어"],
   },
@@ -76,9 +77,9 @@ const capabilitiesByLanguage = {
   en: [
     {
       index: "01",
-      title: "Understand",
+      title: "Identify calculation zones",
       description:
-        "The agent uses visual reasoning to locate smoke-control vestibules across the full drawing set and delineates each calculation zone.",
+        "Visual reasoning locates smoke-control vestibules and delineates every calculation zone across the drawing set.",
       icon: ScanSearch,
       eyebrow: "READ DRAWINGS",
       result: "8 buildings · 16 smoke-control zones",
@@ -86,9 +87,9 @@ const capabilitiesByLanguage = {
     },
     {
       index: "02",
-      title: "Engineer",
+      title: "Measure in CAD",
       description:
-        "It measures connected doors and windows with native CAD tools, then transfers the geometry into the calculation workflow.",
+        "Native CAD tools measure connected doors and windows, feeding real geometry into the calculation workflow.",
       icon: Ruler,
       eyebrow: "APPLY RULES",
       result: "Automated measurement and data entry",
@@ -96,9 +97,9 @@ const capabilitiesByLanguage = {
     },
     {
       index: "03",
-      title: "Draw",
+      title: "Draft the system",
       description:
-        "It identifies fan rooms and dry areas, places approved fan and damper blocks, and routes intake and discharge ducts.",
+        "Approved fan and damper blocks are placed before intake and discharge ducts are routed within design constraints.",
       icon: Workflow,
       eyebrow: "GENERATE CAD",
       result: "Editable fan · damper · duct layer",
@@ -201,8 +202,8 @@ export default function Home() {
     <div className="min-h-screen overflow-hidden bg-[#f8f9fb] text-[#0b1220]">
       <Navbar language={language} onLanguageChange={handleLanguageChange} />
 
-      <main>
-        <section className="hero-grid relative overflow-hidden border-b border-slate-200/80">
+      <main className="flex flex-col">
+        <section className="hero-grid relative order-1 overflow-hidden border-b border-slate-200/80">
           <div className="hero-glow" />
           <div className="site-shell relative z-10 pt-24 pb-16 md:pt-32 md:pb-24">
             <div className="mx-auto max-w-5xl text-center">
@@ -211,14 +212,13 @@ export default function Home() {
                 VIBE CAD · AI DESIGN AGENT
               </div>
               <h1 className="display-title mx-auto max-w-5xl">
-                <span className="hero-title-line">{isEnglish ? "Read drawings." : "도면을 읽고,"}</span>
-                <span className="hero-title-line">{isEnglish ? "Apply engineering rules." : "규칙을 이해하고,"}</span>
-                <span className="hero-title-line text-blue-600">{isEnglish ? "Generate CAD." : "CAD를 직접 그립니다."}</span>
+                <span className="hero-title-line">{isEnglish ? "From engineering drawings" : "엔지니어링 도면에서"}</span>
+                <span className="hero-title-line text-blue-600">{isEnglish ? "to editable CAD." : "편집 가능한 CAD까지."}</span>
               </h1>
               <p className="mx-auto mt-7 max-w-2xl text-balance text-lg leading-8 text-slate-600 md:text-xl">
                 {isEnglish
-                  ? "VibeCAD is an AI design agent that turns engineering rules into editable CAD geometry—directly in the browser."
-                  : "VibeCAD는 엔지니어링 규칙을 편집 가능한 CAD 도면으로 바꾸는 AI 설계 에이전트입니다."}
+                  ? "VibeCAD reads drawings, applies company engineering standards, and produces editable CAD geometry in the browser."
+                  : "회사의 설계 기준에 따라 도면 판독부터 실측, 계산, 작도까지 하나의 흐름으로 연결하는 VibeCAD"}
               </p>
               <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a href="#contact" className="button-primary">
@@ -273,20 +273,20 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="product" className="bg-white py-24 md:py-32">
+        <section id="product" className="order-2 bg-white py-24 md:py-32">
           <div className="site-shell">
             <div className="section-heading">
               <p className="section-kicker">FROM DRAWING TO DESIGN</p>
               <h2>
-                {isEnglish ? "Understand. Engineer. Draw." : "도면을 이해하고, 규칙을 적용하고, CAD로 그립니다."}
+                {isEnglish ? "Drawing analysis. Measurement. Drafting." : "판독부터 실측, 작도까지."}
                 <br className="desktop-break" />
                 {" "}
-                {isEnglish ? "One continuous engineering workflow." : "하나로 이어지는 엔지니어링 워크플로."}
+                {isEnglish ? "One continuous engineering workflow." : "하나로 이어지는 설계 흐름."}
               </h2>
               <p>
                 {isEnglish
-                  ? "A three-stage workflow mirrors how engineers work—from drawing analysis and measurement to calculation and CAD production."
-                  : "사람이 수행하던 제연설계 방식을 3단계 모듈로 구현했습니다. 각 단계를 순서대로 실행하면 분석부터 계산, 작도까지 이어집니다."}
+                  ? "Three purpose-built stages follow the way smoke-control engineers already work, while removing the repetitive manual steps."
+                  : "제연 엔지니어의 실제 작업 순서를 세 단계로 구현해 반복적인 수작업을 줄인 설계 흐름"}
               </p>
             </div>
 
@@ -322,12 +322,12 @@ export default function Home() {
               <div className="step-one-copy">
                 <div>
                   <p className="section-kicker">STEP 01 · LIVE PRODUCT FOOTAGE</p>
-                  <h3>{isEnglish ? "Identify smoke-control vestibules across the drawing set." : "도면 전체에서 제연 부속실을 식별합니다."}</h3>
+                  <h3>{isEnglish ? "Every smoke-control zone, located across the drawing set." : "전체 도면에서 찾아낸 제연구역."}</h3>
                 </div>
                 <p>
                   {isEnglish
-                    ? "The agent reviews the full drawing set, identifies every relevant floor plan, and marks each vestibule calculation zone with a dashed boundary."
-                    : "실행 버튼을 누르면 에이전트가 전체 도면을 판독하고, 부속실별 계산이 필요한 평면도 영역을 점선으로 표시합니다."}
+                    ? "The agent reviews every floor plan and marks each vestibule calculation zone with a dashed boundary."
+                    : "관련 평면도를 판독하고 부속실별 계산 영역을 점선으로 표시"}
                 </p>
               </div>
               <div className="step-one-media">
@@ -351,152 +351,251 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="knowledge-section border-t border-slate-100 py-24 md:py-32">
+        <section id="intelligence" className="knowledge-section order-7 border-t border-slate-100 py-24 md:py-32">
           <div className="site-shell">
             <div className="knowledge-declaration mx-auto max-w-5xl text-center">
-              <p className="section-kicker">SYNTHYA COMPANY INTELLIGENCE</p>
+              <p className="section-kicker">SHARED CORE · PRIVATE INTELLIGENCE</p>
               <h2 className="mt-5 font-semibold leading-[1.08] tracking-[-0.055em]">
-                {isEnglish ? "VibeCAD is the tool." : "VibeCAD는 도구입니다."}
+                {isEnglish ? "One core platform." : "하나의 기술 기반."}
                 <br className="desktop-break" />
                 {" "}
                 <span className="text-blue-600">
-                  {isEnglish ? "Accumulated design rules are the real asset." : "진짜 자산은 회사가 축적한 설계 규칙입니다."}
+                  {isEnglish ? "A private design agent for every company." : "고객마다 독립된 설계 에이전트."}
                 </span>
               </h2>
               <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-slate-600">
-                  {isEnglish
-                    ? "Synthya builds an intelligence layer from a company’s projects and engineering knowledge. Each design agent retrieves the relevant rules, precedents, and context before it acts."
-                  : "회사가 축적해 온 프로젝트와 설계 지식을 먼저 하나의 지능 계층으로 구축합니다. 설계 에이전트는 작업에 앞서 필요한 규칙과 선례, 프로젝트 맥락을 이곳에서 찾아 실행합니다."}
+                {isEnglish
+                  ? "Synthya Core provides the shared CAD intelligence and execution layer. Drawings, calculations, rules, and expert feedback remain specific to each company’s agent."
+                  : "도면 처리와 CAD 실행을 담당하는 Synthya Core. 도면과 계산식, 설계 규칙, 전문가 피드백은 고객 전용 에이전트 안에서만 활용"}
               </p>
             </div>
 
-            <div className="knowledge-map mt-14">
-              <div className="knowledge-source-panel">
-                <div className="knowledge-panel-heading">
-                  <span>01</span>
-                  <div>
-                    <p>{isEnglish ? "COMPANY KNOWLEDGE" : "회사의 설계 지식"}</p>
-                    <strong>{isEnglish ? "Everything the company knows" : "흩어진 지식을 한곳으로"}</strong>
-                  </div>
+            <div className="implementation-chapter-heading">
+              <span>01</span>
+              <p><small>CORE + PRIVATE AGENTS</small><strong>{isEnglish ? "One technology foundation. Unlimited private agents." : "하나의 기술 기반 위에 확장되는 고객 전용 에이전트"}</strong></p>
+            </div>
+
+            <figure className="implementation-system-map mt-5">
+              <div className="system-map-heading">
+                <div><span>PRIVATE DESIGN AGENTS</span><strong>{isEnglish ? "One private agent for every company and domain" : "회사와 도메인마다 독립된 전용 설계 에이전트"}</strong></div>
+                <p><LockKeyhole aria-hidden="true" />{isEnglish ? "No cross-customer knowledge sharing" : "고객 간 지식 공유 없음"}</p>
+              </div>
+
+              <div className="private-agent-lineup">
+                {[
+                  { icon: Building2, company: "COMPANY A", ko: "건축·설비 설계", en: "Building systems" },
+                  { icon: ShieldCheck, company: "COMPANY B", ko: "소방·안전 설계", en: "Fire protection" },
+                  { icon: Factory, company: "COMPANY C", ko: "제조·생산 설계", en: "Manufacturing" },
+                  { icon: Workflow, company: "COMPANY D", ko: "플랜트 설계", en: "Plant engineering" },
+                  { icon: Network, company: "COMPANY E", ko: "인프라 설계", en: "Infrastructure" },
+                ].map((agent) => {
+                  const Icon = agent.icon;
+                  return (
+                    <div className="system-agent-node" key={agent.company}>
+                      <span className="agent-lock"><LockKeyhole aria-hidden="true" /></span>
+                      <span className="agent-symbol"><Icon aria-hidden="true" /></span>
+                      <small>{agent.company}</small>
+                      <strong>{isEnglish ? agent.en : agent.ko}</strong>
+                      <i aria-hidden="true" />
+                    </div>
+                  );
+                })}
+                <div className="system-agent-node infinite">
+                  <span className="agent-symbol">∞</span>
+                  <small>EXPAND</small>
+                  <strong>{isEnglish ? "New companies & domains" : "새로운 회사와 도메인"}</strong>
+                  <i aria-hidden="true" />
                 </div>
-                <div className="knowledge-source-grid">
+              </div>
+
+              <div className="system-connection-rail" aria-hidden="true"><span /><span /><span /><span /><span /><span /></div>
+
+              <div className="synthya-core-platform">
+                <div className="core-platform-title">
+                  <span>SYNTHYA CORE</span>
+                  <strong>{isEnglish ? "One shared technology foundation" : "모든 전용 에이전트가 사용하는 하나의 기술 기반"}</strong>
+                </div>
+                <div className="core-platform-capabilities">
                   {[
-                    { icon: Archive, ko: "기존 프로젝트", en: "Past projects" },
-                    { icon: FileCode2, ko: "도면·계산서", en: "Drawings & calculations" },
-                    { icon: NotebookTabs, ko: "설계 기준·매뉴얼", en: "Standards & manuals" },
-                    { icon: Scale, ko: "법령·규정", en: "Codes & regulations" },
-                    { icon: Building2, ko: "현장 노하우", en: "Field expertise" },
-                    { icon: Database, ko: "암묵지·선례", en: "Tacit knowledge & precedents" },
-                  ].map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <div className="knowledge-source" key={item.en}>
-                        <Icon aria-hidden="true" />
-                        <span>{isEnglish ? item.en : item.ko}</span>
-                      </div>
-                    );
+                    { icon: Maximize2, ko: "브라우저 기반 CAD", en: "Browser-native CAD" },
+                    { icon: FileCode2, ko: "DWG·DXF 파싱", en: "DWG · DXF parsing" },
+                    { icon: Eye, ko: "도면 정보 판독", en: "Drawing intelligence" },
+                    { icon: Workflow, ko: "규칙 기반 작도", en: "Rule-based drafting" },
+                    { icon: Download, ko: "DXF 다운로드", en: "DXF export" },
+                    { icon: Layers3, ko: "700MB+ 대형 도면", en: "700MB+ drawings" },
+                  ].map((capability) => {
+                    const Icon = capability.icon;
+                    return <div key={capability.en}><Icon aria-hidden="true" /><span>{isEnglish ? capability.en : capability.ko}</span></div>;
                   })}
                 </div>
               </div>
 
-              <div className="knowledge-flow knowledge-flow-in" aria-hidden="true">
-                <span />
-                <ChevronRight />
+              <figcaption>
+                <Box aria-hidden="true" />
+                <span>{isEnglish ? "The core expands once. Every private agent uses it without exposing customer knowledge." : "하나로 발전하는 코어 기술, 분리된 고객 지식을 활용하는 전용 에이전트"}</span>
+              </figcaption>
+            </figure>
+
+            <div className="implementation-chapter-heading">
+              <span>02</span>
+              <p><small>OMNI INTELLIGENCE</small><strong>{isEnglish ? "Company knowledge becomes design capability." : "회사의 지식이 설계 에이전트의 역량이 되는 과정"}</strong></p>
+            </div>
+
+            <figure className="omni-design-relationship">
+              <div className="omni-relationship-heading">
+                <p><span>SYNTHYA DIFFERENCE</span><strong>{isEnglish ? "Omni Intelligence determines capability—and accelerates development." : "설계 수준과 개발 속도를 결정하는 Omni Intelligence"}</strong></p>
+                <small>{isEnglish ? "Domain knowledge moves between agents instead of being relearned by developers" : "개발자가 도메인을 다시 배우는 대신, 에이전트가 필요한 지식을 직접 습득"}</small>
               </div>
 
-              <div className="omni-core">
-                <div className="omni-orbit omni-orbit-one" aria-hidden="true" />
-                <div className="omni-orbit omni-orbit-two" aria-hidden="true" />
-                <div className="omni-core-icon">
-                  <BrainCircuit aria-hidden="true" />
+              <div className="omni-relationship-flow">
+                <div className="company-knowledge-inputs">
+                  <div className="relationship-column-label"><span>01</span><strong>{isEnglish ? "COMPANY KNOWLEDGE" : "회사의 지식"}</strong></div>
+                  {[
+                    { icon: Database, ko: "프로젝트·도면·계산서", en: "Projects, drawings & calculations" },
+                    { icon: FileCode2, ko: "설계 기준·법령·규칙", en: "Standards, regulations & rules" },
+                    { icon: MessageSquare, ko: "전문가의 암묵지·예외 판단", en: "Tacit knowledge & exceptions" },
+                    { icon: RefreshCw, ko: "검증 결과·수정 피드백", en: "Validation and correction feedback" },
+                  ].map((source) => {
+                    const Icon = source.icon;
+                    return <div className="knowledge-input-chip" key={source.en}><Icon aria-hidden="true" /><span>{isEnglish ? source.en : source.ko}</span></div>;
+                  })}
+                  <p className="company-input-note"><Check aria-hidden="true" />{isEnglish ? "Connected without replacing existing ERP, NAS, or project workflows" : "기존 ERP·NAS·프로젝트 업무 방식을 바꾸지 않고 연결"}</p>
                 </div>
-                <p>OMNI INTELLIGENCE AGENT</p>
-                <h3>{isEnglish ? "Company Intelligence Layer" : "기업 설계 지능 계층"}</h3>
-                <div className="omni-functions">
-                  <span>{isEnglish ? "Understand" : "이해"}</span>
-                  <span>{isEnglish ? "Structure" : "구조화"}</span>
-                  <span>{isEnglish ? "Retrieve" : "검색"}</span>
-                  <span>{isEnglish ? "Ground" : "근거화"}</span>
-                </div>
-                <small>
-                  {isEnglish
-                    ? "Project-specific knowledge, delivered at the point of decision"
-                    : "판단이 필요한 순간, 프로젝트에 맞는 지식을 전달"}
-                </small>
-              </div>
 
-              <div className="knowledge-flow knowledge-flow-out" aria-hidden="true">
-                <span />
-                <ChevronRight />
-              </div>
+                <div className="relationship-transfer into-omni" aria-hidden="true"><span /><ArrowRight /></div>
 
-              <div className="knowledge-agent-panel">
-                <div className="knowledge-panel-heading">
-                  <span>02</span>
-                  <div>
-                    <p>{isEnglish ? "DOMAIN DESIGN AGENTS" : "도메인 설계 에이전트"}</p>
-                    <strong>{isEnglish ? "Knowledge becomes execution" : "지식이 설계 실행으로"}</strong>
+                <div className="omni-intelligence-node">
+                  <span className="omni-node-orbit one" aria-hidden="true" />
+                  <span className="omni-node-orbit two" aria-hidden="true" />
+                  <div className="omni-node-icon"><BrainCircuit aria-hidden="true" /></div>
+                  <small>02 · OMNI INTELLIGENCE</small>
+                  <strong>{isEnglish ? "The company knowledge layer" : "회사의 지식 기반"}</strong>
+                  <p>{isEnglish ? "Captures project knowledge with its source, structures expert judgment, and keeps validated rules current." : "프로젝트 지식의 출처를 보존하고 전문가 판단을 구조화해 검증된 규칙을 최신 상태로 유지"}</p>
+                  <div className="omni-node-functions">
+                    {(isEnglish ? ["Ingest & parse", "Structure", "Source trace", "Validate & update"] : ["수집·파싱", "구조화", "출처 추적", "검증·업데이트"]).map((item) => <span key={item}>{item}</span>)}
                   </div>
                 </div>
-                <div className="design-agent-stack">
-                  {[
-                    { index: "A", ko: "도면 판독", en: "Drawing analysis", metaKo: "VLM 기반 객체·영역 인식", metaEn: "VLM-based object recognition" },
-                    { index: "B", ko: "실측·계산", en: "Measure & calculate", metaKo: "CAD 도구와 계산 로직 실행", metaEn: "CAD tools and calculation logic" },
-                    { index: "C", ko: "규칙 기반 작도", en: "Rule-based drafting", metaKo: "검증 가능한 편집 레이어 생성", metaEn: "Verifiable, editable layer output" },
-                  ].map((item) => (
-                    <div className="design-agent" key={item.index}>
-                      <span>{item.index}</span>
-                      <div>
-                        <strong>{isEnglish ? item.en : item.ko}</strong>
-                        <p>{isEnglish ? item.metaEn : item.metaKo}</p>
-                      </div>
-                      <CircleCheckBig aria-hidden="true" />
-                    </div>
-                  ))}
+
+                <div className="relationship-transfer into-design">
+                  <p>{isEnglish ? "Rules · context · precedents · exceptions" : "규칙 · 맥락 · 선례 · 예외"}</p>
+                  <span aria-hidden="true" /><ArrowRight aria-hidden="true" />
+                  <small><Braces aria-hidden="true" />{isEnglish ? "Developer orchestrates tools and interaction" : "개발자는 도구와 상호작용을 연결"}</small>
+                </div>
+
+                <div className="design-agent-output">
+                  <div className="relationship-column-label"><span>03</span><strong>{isEnglish ? "DESIGN AGENT" : "설계 에이전트"}</strong></div>
+                  <div className="design-agent-core"><Workflow aria-hidden="true" /><p><strong>{isEnglish ? "Domain design agent" : "도메인 전용 설계 에이전트"}</strong><span>{isEnglish ? "Executes repeatable engineering work" : "반복되는 전문 설계 업무를 실행"}</span></p></div>
+                  <div className="design-capability-grid">
+                    {[
+                      { icon: Eye, ko: "도면 판독", en: "Interpret" },
+                      { icon: Ruler, ko: "실측", en: "Measure" },
+                      { icon: Calculator, ko: "계산", en: "Calculate" },
+                      { icon: Layers3, ko: "작도", en: "Draft" },
+                    ].map((ability) => {
+                      const Icon = ability.icon;
+                      return <span key={ability.en}><Icon aria-hidden="true" />{isEnglish ? ability.en : ability.ko}</span>;
+                    })}
+                  </div>
                 </div>
               </div>
 
-              <div className="knowledge-loop" aria-hidden="true">
-                <span className="knowledge-loop-line" />
-                <span className="knowledge-loop-label">
-                  <Network />
-                  {isEnglish ? "VALIDATED OUTCOMES STRENGTHEN COMPANY KNOWLEDGE" : "검증된 결과가 다시 회사의 지식으로 축적"}
-                </span>
+              <figcaption>
+                <div><ShieldCheck aria-hidden="true" /><p><strong>{isEnglish ? "Higher design capability" : "설계 수준 향상"}</strong><span>{isEnglish ? "Knowledge breadth, quality, and validation determine real-world reliability." : "지식의 범위와 품질, 검증 수준이 좌우하는 실제 업무 역량과 신뢰도"}</span></p></div>
+                <div><Braces aria-hidden="true" /><p><strong>{isEnglish ? "Faster agent development" : "개발 속도 향상"}</strong><span>{isEnglish ? "Developers focus on tools and orchestration instead of relearning an entire engineering domain." : "도메인 재학습 대신 도구와 에이전트 상호작용 구현에 집중하는 개발 방식"}</span></p></div>
+              </figcaption>
+            </figure>
+
+            <div className="implementation-chapter-heading">
+              <span>03</span>
+              <p><small>IMPLEMENTATION METHOD</small><strong>{isEnglish ? "From company knowledge to commercial automation." : "회사 지식에서 상용 설계 자동화까지"}</strong></p>
+            </div>
+
+            <div className="agent-build-section">
+              <div className="agent-build-heading">
+                <p className="section-kicker">SYNTHYA IMPLEMENTATION METHOD</p>
+                <h2>{isEnglish ? "Commercial automation starts with the work your company already knows." : "회사가 이미 축적한 업무에서 시작하는 상용 설계 자동화"}</h2>
+                <p>{isEnglish ? "A production-grade agent needs more than a set of instructions. It needs the project data, exceptions, decisions, and tacit knowledge behind repeatable engineering work." : "몇 개의 지시문만으로는 부족한 실제 설계 자동화. 프로젝트 데이터와 예외, 의사결정, 문서화되지 않은 암묵지까지 확보해야 상용 수준의 업무 수행 가능"}</p>
+              </div>
+
+              <div className="build-option-grid">
+                <article className="build-option-card direct">
+                  <div className="build-option-topline"><span>DIRECT KNOWLEDGE BUILD</span><small>LIMITED SCOPE</small></div>
+                  <h3>{isEnglish ? "For a narrow, already documented task" : "범위가 작고 이미 문서화된 업무"}</h3>
+                  <p>{isEnglish ? "Your team supplies the complete rules, exceptions, source files, and validation needed for one tightly defined workflow." : "한정된 업무에 필요한 규칙과 예외, 자료, 검증 기준을 고객이 직접 정리해 제공"}</p>
+                  <div className="build-requirements">
+                    <strong>{isEnglish ? "WHAT DETERMINES THE RESULT" : "결과물을 결정하는 요소"}</strong>
+                    <div className="agent-equation">
+                      {(isEnglish ? ["Coverage", "Quality", "Consistency", "Validation"] : ["지식 범위", "자료 품질", "규칙 일관성", "전문가 검증"]).map((item, index) => (
+                        <span key={item}>{index > 0 && <b>×</b>}{item}</span>
+                      ))}
+                    </div>
+                    <p>{isEnglish ? "Performance cannot exceed the situations, rules, and exceptions supplied by the customer." : "고객이 제공한 상황과 규칙, 예외의 범위가 에이전트 성능의 한계"}</p>
+                  </div>
+                  <div className="best-fit"><Check aria-hidden="true" /><span>{isEnglish ? "Suitable for a limited pilot or a small, fixed workflow" : "소규모 검증이나 변화가 적은 한정 업무에 적합"}</span></div>
+                </article>
+
+                <article className="build-option-card omni">
+                  <div className="build-option-topline"><span>OMNI-FIRST BUILD</span><small>SYNTHYA METHOD</small></div>
+                  <h3>{isEnglish ? "The path to a production-grade design agent" : "상용 설계 에이전트를 만드는 신티아의 방법"}</h3>
+                  <p>{isEnglish ? "We connect approved project sources and uncover the rules, precedents, exceptions, and tacit judgment embedded in real work. Experts validate what the Omni Agent has already structured." : "기존 프로젝트 자료에서 규칙과 선례, 예외, 암묵적 판단을 찾아 구조화하는 Omni Agent. 전문가는 정리된 내용을 검증하고 보완"}</p>
+                  <div className="method-proof">
+                    <ShieldCheck aria-hidden="true" />
+                    <p><strong>{isEnglish ? "PROVEN IMPLEMENTATION PATH" : "검증된 상용화 경로"}</strong><span>{isEnglish ? "Used to build and validate Global ENP’s private smoke-control design agent." : "Global ENP 전용 제연설계 에이전트 구축과 실무 검증에 적용"}</span></p>
+                  </div>
+                  <div className="omni-build-flow">
+                    {(isEnglish
+                      ? [["01", "Connect", "Drawings · documents · email · ERP"], ["02", "Structure", "Projects · versions · decisions"], ["03", "Discover", "Rules · precedents · exceptions"], ["04", "Validate", "Expert review and correction"], ["05", "Deploy", "Private design agent"]]
+                      : [["01", "연결", "도면 · 문서 · 이메일 · ERP"], ["02", "구조화", "프로젝트 · 버전 · 의사결정"], ["03", "발견", "규칙 · 선례 · 예외"], ["04", "검증", "전문가 확인과 보완"], ["05", "구축", "고객 전용 설계 에이전트"]]
+                    ).map(([number, title, detail]) => (
+                      <div key={number}><span>{number}</span><p><strong>{title}</strong><small>{detail}</small></p></div>
+                    ))}
+                  </div>
+                  <div className="best-fit"><Check aria-hidden="true" /><span>{isEnglish ? "Designed for repeatable work where automation creates measurable operating value" : "규칙 기반 반복 설계를 대체해 실질적인 운영 효율을 만들어야 하는 조직에 권장"}</span></div>
+                </article>
+              </div>
+
+              <div className="build-decision">
+                <div><span>LIMITED PILOT</span><strong>{isEnglish ? "One narrow, fully documented task" : "작고 명확하게 문서화된 단일 업무"}</strong></div>
+                <ArrowRight aria-hidden="true" />
+                <div className="recommended"><span>COMMERCIAL AUTOMATION</span><strong>{isEnglish ? "Omni-first captures the knowledge behind repeatable work" : "반복 업무의 데이터와 암묵지를 확보하는 Omni-first"}</strong></div>
               </div>
             </div>
 
-            <div className="knowledge-contrast">
-              <div>
-                <span>{isEnglish ? "CONVENTIONAL VIBE CAD" : "일반적인 Vibe CAD"}</span>
-                <p>{isEnglish ? "Prompt" : "프롬프트"} <ArrowRight /> {isEnglish ? "CAD command" : "CAD 명령"}</p>
+            <div className="omni-outcomes">
+              <div className="omni-outcomes-copy">
+                <p className="section-kicker">THE STARTING POINT FOR ENTERPRISE AI</p>
+                <h2>{isEnglish ? "One intelligence layer. More than one agent." : "하나의 지식 기반에서 시작되는 회사의 AX."}</h2>
+                <p>{isEnglish ? "Because project knowledge stays connected and current, the same private intelligence layer can support additional tools for employees, project teams, and leadership." : "지속적으로 연결·업데이트되는 프로젝트 지식. 같은 고객 전용 지식 기반에서 직원, 프로젝트팀, 경영진을 위한 도구로 확장"}</p>
               </div>
-              <div className="knowledge-contrast-divider" />
-              <div className="active">
-                <span>SYNTHYA</span>
-                <p>
-                  {isEnglish ? "Company knowledge" : "회사 지식"} <ArrowRight />
-                  {isEnglish ? "Engineering judgment" : "설계 판단"} <ArrowRight />
-                  {isEnglish ? "CAD execution" : "CAD 실행"}
-                </p>
+              <div className="omni-outcome-grid">
+                {[
+                  { icon: Workflow, ko: "전용 설계 에이전트", en: "Private design agent", metaKo: "회사 규칙에 따른 판독·실측·계산·작도", metaEn: "Analysis, measurement, calculation, and drafting" },
+                  { icon: BrainCircuit, ko: "Project Copilot", en: "Project Copilot", metaKo: "프로젝트 전체를 이해하는 사내 질의 에이전트", metaEn: "Answers grounded in live project knowledge" },
+                  { icon: Network, ko: "실시간 프로젝트 대시보드", en: "Live project dashboard", metaKo: "부서가 함께 보는 진행·변경·승인 현황", metaEn: "Shared progress, changes, approvals, and risks" },
+                  { icon: Building2, ko: "부서별 내부 도구", en: "Enterprise intelligence tools", metaKo: "권한별 경영·원가·구매·현장 도구로 확장", metaEn: "Role-based tools for finance, operations, and leadership" },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return <article key={item.en}><Icon aria-hidden="true" /><div><strong>{isEnglish ? item.en : item.ko}</strong><p>{isEnglish ? item.metaEn : item.metaKo}</p></div></article>;
+                })}
               </div>
             </div>
           </div>
         </section>
 
-        <section id="technology" className="precision-grid border-y border-slate-200 py-24 md:py-32">
+        <section id="product-architecture" className="precision-grid order-3 border-y border-slate-200 py-24 md:py-32">
           <div className="site-shell grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
             <div>
-              <p className="section-kicker">DETERMINISTIC BY DESIGN</p>
+              <p className="section-kicker">PRODUCT ARCHITECTURE · DETERMINISTIC BY DESIGN</p>
               <h2 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.12] tracking-[-0.045em] md:text-5xl">
-                {isEnglish ? "Built for precision." : "추측하지 않습니다."}
+                {isEnglish ? "Reason with AI." : "판단은 AI로."}
                 <br className="desktop-break" />
                 {" "}
-                <span className="text-blue-600">{isEnglish ? "Engineered to execute." : "실행합니다."}</span>
+                <span className="text-blue-600">{isEnglish ? "Execute with CAD." : "실행은 CAD로."}</span>
               </h2>
               <p className="mt-7 max-w-lg text-lg leading-8 text-slate-600">
                 {isEnglish
-                  ? "Language models determine intent and plan the work. Synthya’s proprietary CAD engine performs the measurement, calculation, and geometric execution."
-                  : "언어 모델은 무엇을 해야 하는지 판단합니다. 측정·계산·작도는 신티아가 직접 만든 CAD 엔진이 수행합니다."}
+                  ? "Language and vision models interpret the task. Synthya’s proprietary CAD engine handles measurement, calculation, and drafting."
+                  : "언어·비전 모델의 작업 해석과 신티아 자체 CAD 엔진의 실측·계산·작도"}
               </p>
               <div className="mt-10 space-y-5">
                 {(isEnglish
@@ -567,19 +666,19 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="workflow" className="bg-[#07101f] py-24 text-white md:py-32">
+        <section id="technology-in-action" className="order-4 bg-[#07101f] py-24 text-white md:py-32">
           <div className="site-shell">
             <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
               <div>
                 <p className="section-kicker text-blue-400">REAL WORK, NOT A MOCKUP</p>
                 <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">
-                  {isEnglish ? "Where engineering rules become geometry." : "규칙이 선이 되는 순간."}
+                  {isEnglish ? "Engineering rules, drawn in CAD." : "설계 규칙이 CAD가 되는 과정."}
                 </h2>
               </div>
               <p className="navy-intro-copy max-w-2xl text-lg leading-8 text-slate-300 lg:justify-self-end">
                 {isEnglish
-                  ? "Live footage of the agent moving across 16 smoke-control zones in eight buildings, placing fan and damper blocks, and generating compliant ductwork on a new editable layer."
-                  : "8개 동, 16개 제연구역을 이동하며 팬·댐퍼 블록을 배치하고, 계산 결과와 설계 제약에 맞는 덕트를 새 레이어에 생성하는 실제 화면입니다."}
+                  ? "Across eight buildings and 16 smoke-control zones, the agent places approved components and routes ductwork on a new editable layer."
+                  : "8개 동, 16개 제연구역에 팬·댐퍼 블록을 배치하고 설계 제약에 맞는 덕트를 새 편집 레이어로 생성"}
               </p>
             </div>
 
@@ -607,8 +706,8 @@ export default function Home() {
                 <span>{isEnglish ? "LIVE PRODUCT" : "실제 제품 화면"}</span>
                 <p>
                   {isEnglish
-                    ? "The agent identifies fan rooms and dry areas, then routes intake and discharge ducts along optimized paths."
-                    : "팬룸과 DA를 판독하고, 흡입·토출 덕트를 최적 경로로 순차 작도합니다."}
+                    ? "Fan rooms and dry areas identified. Intake and discharge ducts routed along optimized paths."
+                    : "팬룸·DA 판독 · 흡입·토출 덕트 최적 경로 작도"}
                 </p>
                 <strong>8 BUILDINGS · 16 ZONES</strong>
               </figcaption>
@@ -658,14 +757,14 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="partner-section bg-white py-20 md:py-24">
+        <section className="partner-section order-6 bg-white py-20 md:py-24">
           <div className="site-shell">
             <div className="partner-intro">
               <p className="section-kicker">BUILT WITH INDUSTRY EXPERTS</p>
               <p>
                 {isEnglish
-                  ? "Developed in collaboration with a smoke-control engineering specialist."
-                  : "제연설비 전문기업의 실무 지식과 함께 개발하고 있습니다."}
+                  ? "Built with the field expertise of a smoke-control engineering specialist."
+                  : "제연설비 전문기업의 현업 지식과 함께 만든 설계 흐름"}
               </p>
             </div>
             <div className="partner-card partner-card-compact">
@@ -683,11 +782,11 @@ export default function Home() {
               </div>
               <div className="partner-story">
                 <div className="partner-status"><span aria-hidden="true" /> PILOT VALIDATION</div>
-                <h2>{isEnglish ? "Validated with real engineering practice." : "실제 설계 방식으로 검증합니다."}</h2>
+                <h2>{isEnglish ? "Validation grounded in real engineering work." : "실제 제연설계 방식으로 검증 중."}</h2>
                 <p>
                   {isEnglish
-                    ? "Global ENP’s field practices and engineering rules inform the smoke-control agent. The system is currently undergoing final validation on production drawings ahead of operational deployment."
-                    : "글로벌이앤피의 실제 작업 방식과 현장 규칙을 제연설계 에이전트에 반영하고 있으며, 현재 실무 적용 전 실제 도면을 기반으로 최종 검증하고 있습니다."}
+                    ? "Global ENP’s field practices and engineering rules shape the smoke-control agent, now in final pre-deployment validation on real project drawings."
+                    : "글로벌이앤피의 작업 방식과 현장 규칙을 반영한 에이전트. 실제 프로젝트 도면을 활용해 실무 적용 전 최종 검증 진행 중"}
                 </p>
                 <div className="partner-evidence">
                   {(isEnglish
@@ -702,20 +801,20 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-white py-24 md:py-32">
+        <section id="human-in-the-loop" className="hitl-section-bg order-5 py-24 md:py-32">
           <div className="site-shell">
             <div className="mx-auto max-w-3xl text-center">
               <p className="section-kicker">EXPERT IN CONTROL</p>
               <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">
-                {isEnglish ? "When an engineer moves a component," : "설계자가 위치를 바꾸면,"}
+                {isEnglish ? "Engineering intent stays in control." : "엔지니어의 수정까지 이어지는"}
                 <br className="desktop-break" />
                 {" "}
-                {isEnglish ? "the agent redraws within the rules." : "에이전트가 규칙에 맞춰 다시 그립니다."}
+                {isEnglish ? "The system adapts around it." : "하나의 설계 흐름."}
               </h2>
               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
                 {isEnglish
-                  ? "A human-in-the-loop workflow is in development: move a fan or reshape a duct, and the agent recalculates the connected route while preserving the governing design constraints."
-                  : "팬이나 덕트 위치를 직접 조정하면 기존 규칙을 유지한 채 연결 경로를 다시 계산하는 Human-in-the-loop 기능을 개발하고 있습니다."}
+                  ? "In development: move a fan or reshape a duct, and the agent recalculates the connected route while preserving the governing constraints."
+                  : "팬이나 덕트를 직접 조정하면 연결 경로와 설계 제약을 다시 계산하는 Human-in-the-loop 기능 개발 중"}
               </p>
             </div>
             <div className="relative mx-auto mt-14 max-w-6xl">
@@ -723,170 +822,80 @@ export default function Home() {
                 <Sparkles className="h-3.5 w-3.5" />
                 IN DEVELOPMENT · CONCEPT PREVIEW
               </div>
-              <ProductWindow
-                src={hitlConcept}
-                alt={isEnglish ? "Concept preview of the human-in-the-loop CAD workflow in development" : "개발 중인 Human-in-the-loop CAD 기능 콘셉트 화면"}
-                label="HUMAN-IN-THE-LOOP · CONCEPT"
-                className="hitl-desktop-view"
-                onOpen={() =>
-                  setPreview({
-                    src: hitlConcept,
-                    alt: isEnglish ? "Human-in-the-loop concept in development" : "Human-in-the-loop 개발 콘셉트",
-                    label: isEnglish ? "In development · Concept preview" : "개발 중 · 콘셉트 프리뷰",
-                  })
-                }
-              />
-              <div className="hitl-mobile-story" aria-label={isEnglish ? "Human-in-the-loop concept workflow" : "Human-in-the-loop 콘셉트 워크플로"}>
-                <div className="hitl-mobile-frame drawing">
-                  <img src={hitlConcept} alt="" />
-                  <span>BEFORE</span>
-                  <strong>{isEnglish ? "The engineer moves the fan" : "설계자가 팬 위치를 변경"}</strong>
-                </div>
-                <div className="hitl-mobile-frame constraints">
-                  <img src={hitlConcept} alt="" />
-                  <span>AFTER</span>
-                  <strong>{isEnglish ? "The agent reroutes within constraints" : "에이전트가 규칙 안에서 재작도"}</strong>
+              <div className="hitl-interaction-preview">
+                <button
+                  type="button"
+                  className="hitl-canvas"
+                  aria-label={isEnglish ? "Open the human-in-the-loop drawing concept" : "Human-in-the-loop 도면 콘셉트 크게 보기"}
+                  onClick={() =>
+                    setPreview({
+                      src: hitlConcept,
+                      alt: isEnglish ? "Human-in-the-loop concept in development" : "Human-in-the-loop 개발 콘셉트",
+                      label: isEnglish ? "In development · Concept preview" : "개발 중 · 콘셉트 프리뷰",
+                    })
+                  }
+                >
+                  <img src={hitlConcept} alt={isEnglish ? "Orange agent-generated duct route and pink engineer-adjusted route" : "주황색 에이전트 작도 경로와 핑크색 엔지니어 수정 경로"} />
+                  <div className="hitl-legend">
+                    <span className="agent"><i />{isEnglish ? "AI-GENERATED ROUTE" : "AI 에이전트 작도"}</span>
+                    <span className="engineer"><i />{isEnglish ? "ENGINEER ADJUSTMENT" : "엔지니어 수정"}</span>
+                  </div>
+                  <div className="hitl-drag-gesture" aria-hidden="true">
+                    <span className="hitl-grab-point"><Hand /></span>
+                    <span className="hitl-drag-line" />
+                    <span className="hitl-target-point" />
+                    <strong>GRAB &amp; MOVE</strong>
+                  </div>
+                </button>
+
+                <div className="hitl-control-panel">
+                  <div className="hitl-panel-heading">
+                    <span>DIRECT MANIPULATION</span>
+                    <strong>{isEnglish ? "Edit intent, not every CAD line." : "선을 다시 그리지 않고, 의도를 직접 조정."}</strong>
+                  </div>
+                  {[
+                    {
+                      number: "01",
+                      title: isEnglish ? "Agent generates the route" : "에이전트가 경로 작도",
+                      body: isEnglish ? "The orange geometry is generated from the approved design rules." : "승인된 설계 규칙에 따라 생성된 주황색 형상",
+                      tone: "agent",
+                    },
+                    {
+                      number: "02",
+                      title: isEnglish ? "Engineer grabs and moves" : "엔지니어가 잡아서 이동",
+                      body: isEnglish ? "Drag a segment or bend to express the required field adjustment." : "덕트 구간이나 꺾임을 끌어 현장에 필요한 수정 의도를 전달",
+                      tone: "engineer",
+                    },
+                    {
+                      number: "03",
+                      title: isEnglish ? "Agent resolves the connections" : "에이전트가 연결부 재계산",
+                      body: isEnglish ? "Connected geometry is redrawn while the governing constraints remain active." : "연결된 형상을 다시 작도하면서 기존 설계 제약은 그대로 유지",
+                      tone: "resolved",
+                    },
+                  ].map((step) => (
+                    <div className={`hitl-control-step ${step.tone}`} key={step.number}>
+                      <span>{step.number}</span>
+                      <div><strong>{step.title}</strong><p>{step.body}</p></div>
+                    </div>
+                  ))}
+                  <p className="hitl-panel-note"><Sparkles aria-hidden="true" />IN DEVELOPMENT · INTERACTION CONCEPT</p>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="vision" className="vision-section border-y border-slate-200 py-24 md:py-32">
-          <div className="site-shell">
-            <div className="section-heading">
-              <p className="section-kicker">THE PATH TO VIBE CAD</p>
-              <h2>
-                {isEnglish ? "Starting with the most demanding rules." : "가장 어려운 설계부터,"}
-                <br className="desktop-break" />
-                {" "}
-                {isEnglish ? "Expanding to every design domain." : "모든 엔지니어링 분야로 확장합니다."}
-              </h2>
-              <p>
-                {isEnglish
-                  ? "Korean fire-protection engineering is not the destination. It is the rigorous proving ground for a general-purpose design execution engine."
-                  : "한국 소방은 목적지가 아니라 범용 설계 엔진을 단련하는 가장 정교한 출발점입니다."}
-              </p>
-            </div>
-            <div className="relative mt-16 grid gap-4 lg:grid-cols-3">
-              {(isEnglish
-                ? [
-                    {
-                      state: "AVAILABLE NOW",
-                      title: "Smoke Control Agent",
-                      body: "Core technology validated across drawing analysis, CAD measurement, calculation, and rule-based drafting",
-                      icon: Layers3,
-                      active: true,
-                    },
-                    {
-                      state: "IN DEVELOPMENT",
-                      title: "Fire Protection Agent",
-                      body: "An execution engine designed to handle regulations, multiple systems, and field exceptions",
-                      icon: FileCode2,
-                      active: false,
-                    },
-                    {
-                      state: "OUR DIRECTION",
-                      title: "VibeCAD Platform",
-                      body: "A general design environment where users can encode their own rules and automate domain-specific workflows",
-                      icon: Sparkles,
-                      active: false,
-                    },
-                  ]
-                : [
-                    {
-                      state: "AVAILABLE NOW",
-                      title: "제연설계 에이전트",
-                      body: "도면 분석·실측·규칙 작도의 코어 기술 검증",
-                      icon: Layers3,
-                      active: true,
-                    },
-                    {
-                      state: "IN DEVELOPMENT",
-                      title: "소방설계 에이전트",
-                      body: "외부 법규, 이종 설비, 현장 예외를 다루는 실행 엔진",
-                      icon: FileCode2,
-                      active: false,
-                    },
-                    {
-                      state: "OUR DIRECTION",
-                      title: "VibeCAD 플랫폼",
-                      body: "사용자가 자기 규칙을 넣어 어느 도메인에서나 설계",
-                      icon: Sparkles,
-                      active: false,
-                    },
-                  ]
-              ).map((item, index) => {
-                const Icon = item.icon;
-                return (
-                  <article key={item.title} className={`vision-card ${item.active ? "active" : ""}`}>
-                    <div className="flex items-center justify-between">
-                      <Icon className="h-6 w-6" />
-                      <span className="font-mono text-xs opacity-40">0{index + 1}</span>
-                    </div>
-                    <p className="mt-12 font-mono text-[10px] font-bold tracking-[0.16em] opacity-60">{item.state}</p>
-                    <h3 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{item.title}</h3>
-                    <p className="mt-4 text-sm leading-7 opacity-70">{item.body}</p>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section id="company" className="bg-white py-24 md:py-32">
-          <div className="site-shell grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-            <div>
-              <img
-                src={fullLogo}
-                alt="Synthya"
-                loading="lazy"
-                className="mb-8 w-full max-w-[28rem] mix-blend-multiply"
-              />
-              <p className="section-kicker">BUILT FOR PROFESSIONAL WORK</p>
-              <h2 className="mt-4 max-w-2xl text-4xl font-semibold leading-[1.12] tracking-[-0.045em] md:text-5xl">
-                {isEnglish ? "Turning complex workflows" : "복잡한 전문 업무를"}
-                <br className="desktop-break" />
-                {" "}
-                {isEnglish ? "into executable AI systems." : "실행 가능한 AI로."}
-              </h2>
-              <p className="mt-7 max-w-xl text-lg leading-8 text-slate-600">
-                {isEnglish
-                  ? "Drawing on experience in model training and on-premise GPU operations, Synthya places engineering accuracy in a purpose-built execution engine—not in probabilistic model output alone."
-                  : "신티아는 모델을 직접 훈련하고 온프레미스 GPU를 운영해온 경험을 바탕으로, 설계의 정확성을 모델의 추측이 아닌 실행 엔진에 설계했습니다."}
-              </p>
-            </div>
-            <div className="grid gap-3">
-              {(isEnglish ? [
-                ["2020", "Founded in South Korea"],
-                ["4 months", "From domain study to working agent"],
-                ["700MB+", "Large drawing file validated"],
-              ] : [
-                ["2020", "대한민국에서 설립"],
-                ["4개월", "도메인 연구에서 작동 에이전트까지"],
-                ["700MB+", "대형 도면 파일 처리 검증"],
-              ]).map(([value, label]) => (
-                <div key={label} className="metric-row">
-                  <strong>{value}</strong>
-                  <span>{label}</span>
-                  <MoveUpRight className="h-4 w-4 text-blue-600" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="contact" className="bg-blue-600 py-20 text-white md:py-24">
+        <section id="contact" className="order-8 bg-blue-600 py-20 text-white md:py-24">
           <div className="site-shell flex flex-col items-start justify-between gap-9 md:flex-row md:items-center">
             <div>
               <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-blue-100">START WITH ONE DRAWING</p>
               <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-5xl">
-                {isEnglish ? "Show us the drawing your team repeats the most." : "가장 반복적인 도면부터 보여주세요."}
+                {isEnglish ? "Start with one recurring drawing." : "반복되는 도면 한 장에서 시작."}
               </h2>
               <p className="mt-4 text-blue-100">
                 {isEnglish
-                  ? "We will assess where automation can create measurable value within your current engineering workflow."
-                  : "현재 작업 방식에 맞는 자동화 가능성을 함께 검토합니다."}
+                  ? "Together, we’ll identify where automation can create measurable value in your current engineering workflow."
+                  : "현재 설계 흐름에서 자동화 효과가 가장 큰 지점을 함께 검토"}
               </p>
             </div>
             <a

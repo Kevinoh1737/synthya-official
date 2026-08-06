@@ -4,29 +4,39 @@ import type { Language } from "@/lib/language";
 
 export function Footer({ language = "ko" }: { language?: Language }) {
   const isEnglish = language === "en";
+  const isCompanyPage = window.location.pathname.includes("/company");
+  const homePath = isEnglish ? "/en/" : "/ko/";
 
   return (
     <footer className="site-footer bg-[#07101f] text-white">
       <div className="site-shell py-12 md:py-16">
         <div className="flex flex-col justify-between gap-10 border-b border-white/10 pb-12 md:flex-row">
           <div>
-            <img
-              src={footerLogo}
-              alt="Synthya"
-              className="footer-brand-lockup"
-            />
+            <div className="footer-brand-lockup" role="img" aria-label="Synthya — AI가 직접 그리는 CAD">
+              <img
+                src={footerLogo}
+                alt=""
+                className="footer-brand-base"
+              />
+              <img
+                src={footerLogo}
+                alt=""
+                aria-hidden="true"
+                className="footer-brand-reversed-text"
+              />
+            </div>
             <p className="footer-description mt-5 max-w-md text-slate-300">
               {isEnglish
-                ? "An AI design agent that understands engineering rules and operates CAD directly—starting with smoke-control and fire-protection design."
-                : "규칙을 이해하고 CAD를 직접 조작하는 AI 설계 에이전트. 제연·소방 설계부터 Vibe CAD로."}
+                ? "Engineering knowledge, translated into editable CAD—starting with smoke-control and fire-protection design."
+                : "회사의 설계 지식을 편집 가능한 CAD로. 제연·소방 설계에서 시작"}
             </p>
           </div>
           <div className="footer-links grid grid-cols-2 gap-14">
             <div className="flex flex-col gap-3">
               <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-slate-500">EXPLORE</p>
-              <a href="#product" className="text-slate-300 hover:text-white">Product</a>
-              <a href="#technology" className="text-slate-300 hover:text-white">Technology</a>
-              <a href="#vision" className="text-slate-300 hover:text-white">Vision</a>
+              <a href={isCompanyPage ? `${homePath}#product` : "#product"} className="text-slate-300 hover:text-white">Product</a>
+              <a href={isCompanyPage ? `${homePath}#intelligence` : "#intelligence"} className="text-slate-300 hover:text-white">Implementation</a>
+              <a href={isCompanyPage ? "#vision" : `${homePath}company`} className="text-slate-300 hover:text-white">Company</a>
             </div>
             <div className="flex flex-col gap-3">
               <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-slate-500">CONTACT</p>
