@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Box,
@@ -15,7 +15,6 @@ import {
   FileCode2,
   Hand,
   Layers3,
-  LockKeyhole,
   MessageSquare,
   Maximize2,
   Network,
@@ -24,6 +23,7 @@ import {
   ScanSearch,
   ShieldCheck,
   Sparkles,
+  Unplug,
   Workflow,
   X,
 } from "lucide-react";
@@ -159,6 +159,8 @@ function ProductWindow({
 
 export default function Home() {
   const [preview, setPreview] = useState<PreviewImage>(null);
+  const previewCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const previewTriggerRef = useRef<HTMLElement | null>(null);
   const [language, setLanguage] = useState<Language>(() => {
     if (typeof window === "undefined") return "ko";
     if (window.location.pathname === "/en" || window.location.pathname.startsWith("/en/")) return "en";
@@ -190,47 +192,67 @@ export default function Home() {
   useEffect(() => {
     if (!preview) return;
 
+    previewTriggerRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.requestAnimationFrame(() => previewCloseButtonRef.current?.focus());
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setPreview(null);
+      if (event.key === "Tab") {
+        event.preventDefault();
+        previewCloseButtonRef.current?.focus();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previewTriggerRef.current?.focus();
+      previewTriggerRef.current = null;
+    };
   }, [preview]);
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#f8f9fb] text-[#0b1220]">
+      <a href="#main-content" className="skip-link">
+        {isEnglish ? "Skip to main content" : "본문으로 바로가기"}
+      </a>
       <Navbar language={language} onLanguageChange={handleLanguageChange} />
 
-      <main className="flex flex-col">
+      <main id="main-content" className="flex flex-col">
         <section className="hero-grid relative order-1 overflow-hidden border-b border-slate-200/80">
           <div className="hero-glow" />
-          <div className="site-shell relative z-10 pt-24 pb-16 md:pt-32 md:pb-24">
-            <div className="mx-auto max-w-5xl text-center">
-              <div className="eyebrow-pill mx-auto mb-7">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-600 shadow-[0_0_0_4px_rgba(49,92,255,.12)]" />
-                VIBE CAD · AI DESIGN AGENT
+          <div className="site-shell relative z-10 pt-20 pb-16 md:pt-24 md:pb-24">
+            <div className="hero-stage">
+            <div className="hero-copy max-w-5xl">
+              <div className="hero-technical-label mb-7">
+                <span aria-hidden="true" />
+                VIBE CAD / AI DESIGN AGENT
               </div>
-              <h1 className="display-title mx-auto max-w-5xl">
+              <h1 className="display-title max-w-5xl">
                 <span className="hero-title-line">{isEnglish ? "From engineering drawings" : "엔지니어링 도면에서"}</span>
                 <span className="hero-title-line text-blue-600">{isEnglish ? "to editable CAD." : "편집 가능한 CAD까지."}</span>
               </h1>
-              <p className="mx-auto mt-7 max-w-2xl text-balance text-lg leading-8 text-slate-600 md:text-xl">
+              <p className="mt-7 max-w-2xl text-balance text-lg leading-8 text-slate-600 md:text-xl">
                 {isEnglish
                   ? "VibeCAD reads drawings, applies company engineering standards, and produces editable CAD geometry in the browser."
                   : "회사의 설계 기준에 따라 도면 판독부터 실측, 계산, 작도까지 하나의 흐름으로 연결하는 VibeCAD"}
               </p>
-              <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <a href="#contact" className="button-primary">
+              <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row">
+                <a href="#demo-request" data-demo-request className="button-primary">
                   {isEnglish ? "Request a demo" : "데모 요청"} <ArrowRight className="h-4 w-4" />
                 </a>
-                <a href="#product" className="button-secondary">
+                <a href="#technology-in-action" className="button-secondary">
                   {isEnglish ? "View the product in action" : "실제 작동 화면"} <ChevronRight className="h-4 w-4" />
                 </a>
               </div>
             </div>
 
-            <div className="hero-motion relative mx-auto mt-12 max-w-[1360px] md:mt-14">
+            <div className="hero-motion relative max-w-[1360px]">
               <div className="absolute -inset-8 -z-10 rounded-[3rem] bg-blue-600/[0.06] blur-3xl" />
               <div className="hero-motion-bar">
                 <div><span /><span /><span /></div>
@@ -270,13 +292,13 @@ export default function Home() {
                 ))}
               </div>
             </div>
+            </div>
           </div>
         </section>
 
-        <section id="product" className="order-2 bg-white py-24 md:py-32">
+        <section id="product" className="product-section order-2 bg-white py-24 md:py-32">
           <div className="site-shell">
             <div className="section-heading">
-              <p className="section-kicker">FROM DRAWING TO DESIGN</p>
               <h2>
                 {isEnglish ? "Drawing analysis. Measurement. Drafting." : "판독부터 실측, 작도까지."}
                 <br className="desktop-break" />
@@ -354,8 +376,7 @@ export default function Home() {
         <section id="intelligence" className="knowledge-section order-7 border-t border-slate-100 py-24 md:py-32">
           <div className="site-shell">
             <div className="knowledge-declaration mx-auto max-w-5xl text-center">
-              <p className="section-kicker">SHARED CORE · PRIVATE INTELLIGENCE</p>
-              <h2 className="mt-5 font-semibold leading-[1.08] tracking-[-0.055em]">
+              <h2 className="font-semibold leading-[1.08] tracking-[-0.055em]">
                 {isEnglish ? "One core platform." : "하나의 기술 기반."}
                 <br className="desktop-break" />
                 {" "}
@@ -370,40 +391,49 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="implementation-chapter-heading">
-              <span>01</span>
-              <p><small>CORE + PRIVATE AGENTS</small><strong>{isEnglish ? "One technology foundation. Unlimited private agents." : "하나의 기술 기반 위에 확장되는 고객 전용 에이전트"}</strong></p>
-            </div>
+            <h3 className="implementation-flow-title">{isEnglish ? "Proven in fire-safety design. Expanding across engineering domains from 2027." : "소방설계에서 검증하고, 2027년부터 인접 엔지니어링 도메인으로 확장"}</h3>
 
             <figure className="implementation-system-map mt-5">
               <div className="system-map-heading">
-                <div><span>PRIVATE DESIGN AGENTS</span><strong>{isEnglish ? "One private agent for every company and domain" : "회사와 도메인마다 독립된 전용 설계 에이전트"}</strong></div>
-                <p><LockKeyhole aria-hidden="true" />{isEnglish ? "No cross-customer knowledge sharing" : "고객 간 지식 공유 없음"}</p>
+                <div><span>TARGET MARKETS · PRIVATE CUSTOMER AGENTS</span><strong>{isEnglish ? "Multiple customers in every market. One isolated agent for each customer." : "각 타깃 시장 안의 여러 고객사, 고객마다 독립적으로 구축되는 전용 에이전트"}</strong></div>
+                <p><Unplug aria-hidden="true" />{isEnglish ? "Each agent’s capabilities remain exclusive to its company" : "각 회사의 에이전트 역량은 다른 회사와 공유되지 않음"}</p>
               </div>
 
               <div className="private-agent-lineup">
                 {[
-                  { icon: Building2, company: "COMPANY A", ko: "건축·설비 설계", en: "Building systems" },
-                  { icon: ShieldCheck, company: "COMPANY B", ko: "소방·안전 설계", en: "Fire protection" },
-                  { icon: Factory, company: "COMPANY C", ko: "제조·생산 설계", en: "Manufacturing" },
-                  { icon: Workflow, company: "COMPANY D", ko: "플랜트 설계", en: "Plant engineering" },
-                  { icon: Network, company: "COMPANY E", ko: "인프라 설계", en: "Infrastructure" },
-                ].map((agent) => {
-                  const Icon = agent.icon;
+                  { icon: Workflow, market: "TARGET MARKET 01", ko: "제연·연기제어 설계", en: "Smoke-control design", stage: "current" },
+                  { icon: Layers3, market: "TARGET MARKET 02", ko: "수계 소화설비 설계", en: "Water-based systems", stage: "planned" },
+                  { icon: Eye, market: "TARGET MARKET 03", ko: "경보·소방전기 설계", en: "Alarm & electrical", stage: "planned" },
+                  { icon: Factory, market: "TARGET MARKET 04", ko: "가스계·특수소화 설계", en: "Special suppression", stage: "planned" },
+                  { icon: Network, market: "TARGET MARKET 05", ko: "피난·소화활동설비", en: "Evacuation & response", stage: "planned" },
+                ].map((domain, domainIndex) => {
+                  const Icon = domain.icon;
                   return (
-                    <div className="system-agent-node" key={agent.company}>
-                      <span className="agent-lock"><LockKeyhole aria-hidden="true" /></span>
-                      <span className="agent-symbol"><Icon aria-hidden="true" /></span>
-                      <small>{agent.company}</small>
-                      <strong>{isEnglish ? agent.en : agent.ko}</strong>
+                    <div className={`domain-market-card ${domain.stage}`} key={domain.market}>
+                      <div className="domain-market-heading"><span className="agent-symbol"><Icon aria-hidden="true" /></span><small>{domain.market}</small></div>
+                      <strong>{isEnglish ? domain.en : domain.ko}</strong>
+                      <div className="customer-agent-stack">
+                        {["A", "B", "C"].map((customer, customerIndex) => (
+                          <span className={domainIndex === 0 && customerIndex === 0 ? "validated" : ""} key={customer}>
+                            <Box aria-hidden="true" />
+                            {domainIndex === 0 && customerIndex === 0
+                              ? (isEnglish ? "PARTNER AGENT · VALIDATION" : "파트너 전용 에이전트 · 검증 중")
+                              : (isEnglish ? `CUSTOMER ${customer} AGENT` : `고객 ${customer} 전용 에이전트`)}
+                          </span>
+                        ))}
+                      </div>
+                      <em>{isEnglish ? "Same market, independently built" : "같은 시장에서도 각각 독립 구축"}</em>
                       <i aria-hidden="true" />
                     </div>
                   );
                 })}
-                <div className="system-agent-node infinite">
-                  <span className="agent-symbol">∞</span>
-                  <small>EXPAND</small>
-                  <strong>{isEnglish ? "New companies & domains" : "새로운 회사와 도메인"}</strong>
+                <div className="domain-market-card next-domain">
+                  <div className="domain-market-heading"><span className="agent-symbol">∞</span><small>2027 · NEXT MARKETS</small></div>
+                  <strong>{isEnglish ? "Manufacturing · plant · building systems" : "제조·플랜트·건축설비로 확장"}</strong>
+                  <div className="customer-agent-stack future">
+                    {["01", "02", "∞"].map((customer) => <span key={customer}><Box aria-hidden="true" />{isEnglish ? `PRIVATE AGENT ${customer}` : `고객 전용 에이전트 ${customer}`}</span>)}
+                  </div>
+                  <em>{isEnglish ? "The same customer-isolated model" : "동일한 고객별 독립 구축 방식"}</em>
                   <i aria-hidden="true" />
                 </div>
               </div>
@@ -413,13 +443,14 @@ export default function Home() {
               <div className="synthya-core-platform">
                 <div className="core-platform-title">
                   <span>SYNTHYA CORE</span>
-                  <strong>{isEnglish ? "One shared technology foundation" : "모든 전용 에이전트가 사용하는 하나의 기술 기반"}</strong>
+                  <strong>{isEnglish ? "Shared core technology and agent execution skills" : "모든 전용 에이전트가 사용하는 공통 기반 기술과 실행 스킬"}</strong>
                 </div>
                 <div className="core-platform-capabilities">
                   {[
                     { icon: Maximize2, ko: "브라우저 기반 CAD", en: "Browser-native CAD" },
                     { icon: FileCode2, ko: "DWG·DXF 파싱", en: "DWG · DXF parsing" },
                     { icon: Eye, ko: "도면 정보 판독", en: "Drawing intelligence" },
+                    { icon: Ruler, ko: "CAD 도구 실측", en: "CAD measurement" },
                     { icon: Workflow, ko: "규칙 기반 작도", en: "Rule-based drafting" },
                     { icon: Download, ko: "DXF 다운로드", en: "DXF export" },
                     { icon: Layers3, ko: "700MB+ 대형 도면", en: "700MB+ drawings" },
@@ -432,18 +463,15 @@ export default function Home() {
 
               <figcaption>
                 <Box aria-hidden="true" />
-                <span>{isEnglish ? "The core expands once. Every private agent uses it without exposing customer knowledge." : "하나로 발전하는 코어 기술, 분리된 고객 지식을 활용하는 전용 에이전트"}</span>
+                <span>{isEnglish ? "Customer × market × workflow = one private agent. Only Synthya Core is shared." : "고객사 × 타깃 시장 × 설계 업무 = 하나의 전용 에이전트. 공유되는 것은 Synthya Core뿐"}</span>
               </figcaption>
             </figure>
 
-            <div className="implementation-chapter-heading">
-              <span>02</span>
-              <p><small>OMNI INTELLIGENCE</small><strong>{isEnglish ? "Company knowledge becomes design capability." : "회사의 지식이 설계 에이전트의 역량이 되는 과정"}</strong></p>
-            </div>
+            <h3 className="implementation-flow-title">{isEnglish ? "Company knowledge becomes design capability." : "회사의 지식이 설계 역량으로 전환되는 과정"}</h3>
 
             <figure className="omni-design-relationship">
               <div className="omni-relationship-heading">
-                <p><span>SYNTHYA DIFFERENCE</span><strong>{isEnglish ? "Omni Intelligence determines capability—and accelerates development." : "설계 수준과 개발 속도를 결정하는 Omni Intelligence"}</strong></p>
+                <p><span>SYNTHYA DIFFERENCE</span><strong>{isEnglish ? "Omni Intelligence determines capability and accelerates development." : "설계 수준과 개발 속도를 결정하는 Omni Intelligence"}</strong></p>
                 <small>{isEnglish ? "Domain knowledge moves between agents instead of being relearned by developers" : "개발자가 도메인을 다시 배우는 대신, 에이전트가 필요한 지식을 직접 습득"}</small>
               </div>
 
@@ -505,14 +533,10 @@ export default function Home() {
               </figcaption>
             </figure>
 
-            <div className="implementation-chapter-heading">
-              <span>03</span>
-              <p><small>IMPLEMENTATION METHOD</small><strong>{isEnglish ? "From company knowledge to commercial automation." : "회사 지식에서 상용 설계 자동화까지"}</strong></p>
-            </div>
+            <h3 className="implementation-flow-title">{isEnglish ? "From company knowledge to commercial automation." : "회사 지식에서 상용 설계 자동화까지"}</h3>
 
             <div className="agent-build-section">
               <div className="agent-build-heading">
-                <p className="section-kicker">SYNTHYA IMPLEMENTATION METHOD</p>
                 <h2>{isEnglish ? "Commercial automation starts with the work your company already knows." : "회사가 이미 축적한 업무에서 시작하는 상용 설계 자동화"}</h2>
                 <p>{isEnglish ? "A production-grade agent needs more than a set of instructions. It needs the project data, exceptions, decisions, and tacit knowledge behind repeatable engineering work." : "몇 개의 지시문만으로는 부족한 실제 설계 자동화. 프로젝트 데이터와 예외, 의사결정, 문서화되지 않은 암묵지까지 확보해야 상용 수준의 업무 수행 가능"}</p>
               </div>
@@ -563,7 +587,6 @@ export default function Home() {
 
             <div className="omni-outcomes">
               <div className="omni-outcomes-copy">
-                <p className="section-kicker">THE STARTING POINT FOR ENTERPRISE AI</p>
                 <h2>{isEnglish ? "One intelligence layer. More than one agent." : "하나의 지식 기반에서 시작되는 회사의 AX."}</h2>
                 <p>{isEnglish ? "Because project knowledge stays connected and current, the same private intelligence layer can support additional tools for employees, project teams, and leadership." : "지속적으로 연결·업데이트되는 프로젝트 지식. 같은 고객 전용 지식 기반에서 직원, 프로젝트팀, 경영진을 위한 도구로 확장"}</p>
               </div>
@@ -585,7 +608,6 @@ export default function Home() {
         <section id="product-architecture" className="precision-grid order-3 border-y border-slate-200 py-24 md:py-32">
           <div className="site-shell grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
             <div>
-              <p className="section-kicker">PRODUCT ARCHITECTURE · DETERMINISTIC BY DESIGN</p>
               <h2 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.12] tracking-[-0.045em] md:text-5xl">
                 {isEnglish ? "Reason with AI." : "판단은 AI로."}
                 <br className="desktop-break" />
@@ -672,13 +694,13 @@ export default function Home() {
               <div>
                 <p className="section-kicker text-blue-400">REAL WORK, NOT A MOCKUP</p>
                 <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">
-                  {isEnglish ? "Engineering rules, drawn in CAD." : "설계 규칙이 CAD가 되는 과정."}
+                  {isEnglish ? "Engineering rules, drawn into CAD." : "설계 규칙이 도면 위에 구현되는 과정."}
                 </h2>
               </div>
               <p className="navy-intro-copy max-w-2xl text-lg leading-8 text-slate-300 lg:justify-self-end">
                 {isEnglish
                   ? "Across eight buildings and 16 smoke-control zones, the agent places approved components and routes ductwork on a new editable layer."
-                  : "8개 동, 16개 제연구역에 팬·댐퍼 블록을 배치하고 설계 제약에 맞는 덕트를 새 편집 레이어로 생성"}
+                  : "8개 동, 16개 제연구역에 팬·댐퍼 블록을 배치하고, 설계 규칙에 따라 덕트를 새 편집 레이어에 작도"}
               </p>
             </div>
 
@@ -688,7 +710,9 @@ export default function Home() {
                   <span className="live-indicator" aria-hidden="true" />
                   <span>LIVE PRODUCT FOOTAGE</span>
                 </div>
-                <span className="hidden text-slate-500 sm:inline">SMOKE CONTROL AGENT · STEP 3</span>
+                <span className="hidden text-slate-500 sm:inline">
+                  {isEnglish ? "CAD DESIGN AGENT · STEP 3" : "CAD 설계·작도 에이전트 · STEP 3"}
+                </span>
               </div>
               <video
                 className="live-product-video"
@@ -714,6 +738,9 @@ export default function Home() {
             </figure>
 
             <div className="result-zoom-grid mt-6">
+              <p className="result-comparison-note">
+                {isEnglish ? "BUILDING 107 · BASEMENT LEVEL 1 · SAME VIEW AND SCALE" : "107동 지하 1층 · 동일 구역 · 동일 배율"}
+              </p>
               <button
                 type="button"
                 className="result-zoom-card before"
@@ -760,7 +787,6 @@ export default function Home() {
         <section className="partner-section order-6 bg-white py-20 md:py-24">
           <div className="site-shell">
             <div className="partner-intro">
-              <p className="section-kicker">BUILT WITH INDUSTRY EXPERTS</p>
               <p>
                 {isEnglish
                   ? "Built with the field expertise of a smoke-control engineering specialist."
@@ -801,23 +827,22 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="human-in-the-loop" className="hitl-section-bg order-5 py-24 md:py-32">
+        <section id="human-in-the-loop" className="hitl-section-bg order-5 py-20 md:py-24">
           <div className="site-shell">
-            <div className="mx-auto max-w-3xl text-center">
-              <p className="section-kicker">EXPERT IN CONTROL</p>
-              <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-semibold leading-tight tracking-[-0.045em] md:text-4xl">
                 {isEnglish ? "Engineering intent stays in control." : "엔지니어의 수정까지 이어지는"}
                 <br className="desktop-break" />
                 {" "}
                 {isEnglish ? "The system adapts around it." : "하나의 설계 흐름."}
               </h2>
-              <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600">
                 {isEnglish
                   ? "In development: move a fan or reshape a duct, and the agent recalculates the connected route while preserving the governing constraints."
                   : "팬이나 덕트를 직접 조정하면 연결 경로와 설계 제약을 다시 계산하는 Human-in-the-loop 기능 개발 중"}
               </p>
             </div>
-            <div className="relative mx-auto mt-14 max-w-6xl">
+            <div className="relative mx-auto mt-10 max-w-5xl">
               <div className="concept-badge">
                 <Sparkles className="h-3.5 w-3.5" />
                 IN DEVELOPMENT · CONCEPT PREVIEW
@@ -898,10 +923,7 @@ export default function Home() {
                   : "현재 설계 흐름에서 자동화 효과가 가장 큰 지점을 함께 검토"}
               </p>
             </div>
-            <a
-              href={`mailto:business@synthya.ai?subject=${isEnglish ? "Vibe%20CAD%20Demo%20Request" : "Vibe%20CAD%20데모%20요청"}`}
-              className="button-white shrink-0"
-            >
+            <a href="#demo-request" data-demo-request className="button-white shrink-0">
               {isEnglish ? "Request a demo" : "데모 요청하기"} <ArrowRight className="h-4 w-4" />
             </a>
           </div>
@@ -919,6 +941,7 @@ export default function Home() {
           onClick={() => setPreview(null)}
         >
           <button
+            ref={previewCloseButtonRef}
             type="button"
             onClick={() => setPreview(null)}
             className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 md:right-8 md:top-8"

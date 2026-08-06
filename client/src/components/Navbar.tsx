@@ -112,7 +112,7 @@ export function Navbar({ language = "ko", onLanguageChange = () => undefined }: 
               </button>
             ))}
           </div>
-          <a href="#contact" className="flex items-center gap-2 rounded-full bg-[#0b1220] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-600">
+          <a href="#demo-request" data-demo-request className="flex items-center gap-2 rounded-full bg-[#0b1220] px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-600">
             {demoLabel} <ArrowUpRight className="h-3.5 w-3.5" />
           </a>
         </div>
@@ -160,7 +160,7 @@ export function Navbar({ language = "ko", onLanguageChange = () => undefined }: 
                 {link.label}
               </a>
             ))}
-            <a href="#contact" className="button-primary mt-5 justify-center" onClick={() => setOpen(false)}>
+            <a href="#demo-request" data-demo-request className="button-primary mt-5 justify-center" onClick={() => setOpen(false)}>
               {demoLabel} <ArrowUpRight className="h-4 w-4" />
             </a>
           </div>

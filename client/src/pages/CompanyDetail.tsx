@@ -52,8 +52,7 @@ export default function CompanyDetail() {
             </a>
             <div className="mt-14 grid gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
               <div>
-                <p className="section-kicker">AI-NATIVE ENGINEERING COMPANY</p>
-                <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[1.04] tracking-[-0.06em] md:text-7xl">
+                <h1 className="max-w-4xl text-5xl font-semibold leading-[1.04] tracking-[-0.06em] md:text-7xl">
                   {isEnglish ? "An AI-native team." : "완전한 AI 네이티브"}<br />
                   <span className="text-blue-600">{isEnglish ? "Built to execute." : "개발팀."}</span>
                 </h1>
@@ -62,6 +61,7 @@ export default function CompanyDetail() {
                     ? "Models are not an add-on to our workflow. They help assemble, coordinate, evaluate, and improve the specialist agent teams behind every project."
                     : "AI를 기존 개발 방식에 덧붙이는 팀이 아니라, 프로젝트마다 전문 에이전트 팀을 구성하고 조율하며 평가·개선하는 방식으로 개발"}
                 </p>
+                <a href="#agent-harness" className="button-primary mt-8">{isEnglish ? "See how the team operates" : "AI 개발팀 운영 구조 보기"}<ArrowRight className="h-4 w-4" /></a>
               </div>
               <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-[0_24px_70px_rgba(15,23,42,.08)] md:p-10">
                 <img src={fullLogo} alt="Synthya" className="w-full max-w-md mix-blend-multiply" />
@@ -75,10 +75,9 @@ export default function CompanyDetail() {
           </div>
         </section>
 
-        <section className="bg-white py-24 md:py-32">
+        <section className="company-foundation-section bg-white py-16 md:py-20">
           <div className="site-shell">
             <div className="section-heading text-left">
-              <p className="section-kicker">NATIVE FROM THE MODEL LAYER UP</p>
               <h2>{isEnglish ? "AI is not a tool we adopted. It is how our development organization works." : "AI를 도입한 개발팀이 아닌, AI로 움직이는 개발 조직"}</h2>
               <p>{isEnglish ? "Six years of model engineering evolved into an operating system for assembling specialist agents, coordinating their work, and validating every result under human authority." : "6년간의 모델 엔지니어링이 전문 에이전트를 구성하고 협업시키며, 사람의 최종 권한 아래 결과를 검증하는 개발 운영 기술로 확장"}</p>
             </div>
@@ -98,8 +97,7 @@ export default function CompanyDetail() {
         <section id="agent-harness" className="agent-harness-section py-24 md:py-32">
           <div className="site-shell">
             <div className="mx-auto max-w-4xl text-center">
-              <p className="section-kicker">SYNTHYA AGENT HARNESS</p>
-              <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.05em] md:text-6xl">
+              <h2 className="text-4xl font-semibold leading-tight tracking-[-0.05em] md:text-6xl">
                 {isEnglish ? "An AI-native development team," : "프로젝트마다 구성되는"}<br className="desktop-break" />{" "}
                 <span className="text-blue-600">{isEnglish ? "assembled for every project." : "AI 네이티브 개발팀"}</span>
               </h2>
@@ -164,8 +162,7 @@ export default function CompanyDetail() {
           <div className="site-shell">
             <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
               <div>
-                <p className="section-kicker">2025 · SELECTED COMMERCIAL WORK</p>
-                <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">{isEnglish ? "Built for real professional environments." : "전문 산업의 실제 업무에서 확보한 상용화 경험"}</h2>
+                <h2 className="text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">{isEnglish ? "Built for real professional environments." : "전문 산업의 실제 업무에서 확보한 상용화 경험"}</h2>
               </div>
               <p className="max-w-2xl text-lg leading-8 text-slate-600 lg:justify-self-end">{isEnglish ? "Before design AI, Synthya had already delivered model-driven production and secure enterprise AI in demanding commercial settings." : "설계 AI 이전부터 콘텐츠 제작과 보안형 엔터프라이즈 환경에서 축적한 모델 기반 제품 운영과 납품 경험"}</p>
             </div>
@@ -182,8 +179,7 @@ export default function CompanyDetail() {
         <section className="border-y border-slate-200 py-24 md:py-32">
           <div className="site-shell grid gap-14 lg:grid-cols-[0.72fr_1.28fr]">
             <div>
-              <p className="section-kicker">SIX YEARS OF BUILDING</p>
-              <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">{isEnglish ? "From speech AI to design AI." : "음성 AI에서 설계 AI까지"}</h2>
+              <h2 className="text-4xl font-semibold leading-tight tracking-[-0.045em] md:text-5xl">{isEnglish ? "From speech AI to design AI." : "음성 AI에서 설계 AI까지"}</h2>
               <p className="mt-6 max-w-md text-lg leading-8 text-slate-600">{isEnglish ? "A continuous path of building models, operating products, and solving professional workflows." : "모델 개발, 제품 운영, 전문 업무 자동화로 이어진 하나의 기술 축적 과정"}</p>
             </div>
             <div className="divide-y divide-slate-200 border-y border-slate-200">
@@ -211,7 +207,7 @@ export default function CompanyDetail() {
         <section className="bg-blue-600 py-20 text-white md:py-24">
           <div className="site-shell flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
             <div><p className="font-mono text-[10px] font-bold tracking-[0.18em] text-blue-100">BUILD WITH SYNTHYA</p><h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-5xl">{isEnglish ? "Turn your engineering knowledge into an executable system." : "회사의 설계 지식을 실행 가능한 시스템으로"}</h2></div>
-            <a href={`mailto:business@synthya.ai?subject=${isEnglish ? "Synthya%20Company%20Inquiry" : "Synthya%20회사%20문의"}`} className="button-white shrink-0">{isEnglish ? "Talk to our team" : "도입 상담"}<ArrowRight className="h-4 w-4" /></a>
+            <a href="#demo-request" data-demo-request className="button-white shrink-0">{isEnglish ? "Talk to our team" : "도입 상담"}<ArrowRight className="h-4 w-4" /></a>
           </div>
         </section>
       </main>

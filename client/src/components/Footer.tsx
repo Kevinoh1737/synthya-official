@@ -43,7 +43,7 @@ export function Footer({ language = "ko" }: { language?: Language }) {
               <a href="mailto:business@synthya.ai" className="flex items-center gap-2 text-slate-300 hover:text-white">
                 <Mail className="h-3.5 w-3.5" /> Email
               </a>
-              <a href="#contact" className="flex items-center gap-2 text-slate-300 hover:text-white">
+              <a href="#demo-request" data-demo-request className="flex items-center gap-2 text-slate-300 hover:text-white">
                 {isEnglish ? "Request a demo" : "데모 요청"} <ArrowUpRight className="h-3.5 w-3.5" />
               </a>
             </div>
