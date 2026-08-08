@@ -21,6 +21,8 @@ export default defineConfig({
         main: path.resolve(import.meta.dirname, "client", "index.html"),
         ko: path.resolve(import.meta.dirname, "client", "ko", "index.html"),
         en: path.resolve(import.meta.dirname, "client", "en", "index.html"),
+        koCompany: path.resolve(import.meta.dirname, "client", "ko", "company", "index.html"),
+        enCompany: path.resolve(import.meta.dirname, "client", "en", "company", "index.html"),
       },
     },
   },

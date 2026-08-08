@@ -4,10 +4,27 @@
   "outputDirectory": "dist/public",
   "framework": "vite",
   "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept-language",
+          "value": { "re": "(^|.*,\\s*)[kK][oO](?:-[A-Za-z]{2})?(?:;q=[0-9.]+)?(?:,.*|$)" }
+        }
+      ],
+      "destination": "/ko/",
+      "permanent": false
+    },
+    { "source": "/", "destination": "/en/", "permanent": false },
     { "source": "/ko", "destination": "/ko/", "permanent": true },
-    { "source": "/en", "destination": "/en/", "permanent": true }
+    { "source": "/en", "destination": "/en/", "permanent": true },
+    { "source": "/ko/company/", "destination": "/ko/company", "permanent": true },
+    { "source": "/en/company/", "destination": "/en/company", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/ko/company", "destination": "/ko/company/index.html" },
+    { "source": "/en/company", "destination": "/en/company/index.html" },
     { "source": "/ko/", "destination": "/ko/index.html" },
     { "source": "/en/", "destination": "/en/index.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
