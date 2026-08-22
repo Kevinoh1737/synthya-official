@@ -19,6 +19,8 @@
     { "source": "/", "destination": "/en/", "permanent": false },
     { "source": "/ko", "destination": "/ko/", "permanent": true },
     { "source": "/en", "destination": "/en/", "permanent": true },
+    { "source": "/company", "destination": "/ko/company", "permanent": true },
+    { "source": "/company/", "destination": "/ko/company", "permanent": true },
     { "source": "/ko/company/", "destination": "/ko/company", "permanent": true },
     { "source": "/en/company/", "destination": "/en/company", "permanent": true }
   ],

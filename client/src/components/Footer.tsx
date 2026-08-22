@@ -51,7 +51,7 @@ export function Footer({ language = "ko" }: { language?: Language }) {
         </div>
         <div className="footer-legal flex flex-col gap-3 pt-6 text-slate-400 md:flex-row md:items-center md:justify-between">
           <p>© 2026 Synthya Inc. All rights reserved.</p>
-          <p>{isEnglish ? "Synthya Inc. · South Korea" : "주식회사 신티아 · 대한민국"}</p>
+          <p>{isEnglish ? "Synthya Inc. · South Korea" : "주식회사 신티아(Synthya Inc.) · 대한민국"}</p>
         </div>
       </div>
     </footer>
